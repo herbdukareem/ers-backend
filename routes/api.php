@@ -40,5 +40,6 @@ Route::group(['middleware'=>'auth:api'], function () {
     Route::get('/enrolee-visits', [EnroleeVisitController::class, 'fetchVisits']);
     Route::post('/enrolee-visits', [EnroleeVisitController::class, 'fetchVisits']);
     Route::get('/users/{id}', [UserController::class, 'show']);
+    Route::get('/enrolees-data/{id}', [AuthController::class, 'enrolees']);
     Route::post('/users', [UserController::class, 'store']);  
 });

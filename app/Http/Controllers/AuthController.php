@@ -58,5 +58,19 @@ class AuthController
         }
         
     }
+
+    public function enrolees($id){
+        try {
+            $services = Service::all();
+            $user =  User::find($id);
+            $enrolees = Enrolee::select('id','enrolee_type','surname','first_name','other_name','enrolment_number','phone_number','sex','lga','ward','provider_id')
+            ->where(['lga'=> $user->lga, 'ward'=>$user->ward, 'provider_id'=>$user->provider_id])->get();
+            return new UtilResource(["services"=> $services, "user" => $user,'enrolees'=>$enrolees ], false, 200);       
+        }catch (ValidationException $e) {
+            return new UtilResource($e->errors(), true, 400);
+        } catch (\Exception $e) {
+            return new UtilResource($e->getMessage(), true, 400);
+        }
+    }
 }
 
