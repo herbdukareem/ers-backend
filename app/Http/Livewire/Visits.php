@@ -40,9 +40,9 @@ class Visits extends Component
         }        
         $this->chatkey = mt_rand(1000,99999);
         $enroleeVisits = $enroleeVisits->paginate(3);
-        $enroleeVisitsData = $enroleeVisitsData->selectRaw("SUM(IF(sex ='male',1,0)) AS male, SUM(IF(sex ='female',1,0)) AS female, COUNT(id) AS total_count,reporting_month, reason_of_visit ")->groupBy('reason_of_visit','reporting_month')->get();
+        $enroleeVisitsData = $enroleeVisitsData->selectRaw("SUM(IF(sex ='male',1,0)) AS male, SUM(IF(sex ='female',1,0)) AS female, COUNT(id) AS total_count,reporting_month, service_accessed ")->groupBy('service_accessed','reporting_month')->get();
 
-        $reasons = $enroleeVisitsData->pluck('reason')->toArray();
+        $reasons = $enroleeVisitsData->pluck('service')->toArray();
         $totalCounts = $enroleeVisitsData->pluck('total_count')->toArray();
         $reporting_month = $enroleeVisitsData->pluck('reporting_month')->toArray();
         $maleCounts = $enroleeVisitsData->pluck('male')->toArray();
@@ -76,13 +76,13 @@ class Visits extends Component
             $i = 0;
             foreach ($enroleeVisits as &$item) {
                 $i++;
-                $item['id'] = $i;                
+                $item['id'] = $i;                                
                 unset($item['activated_user_id']);
                 unset($item['lga']);
                 unset($item['ward']);
                 unset($item['facility_id']);
                 unset($item['updated_at']);
-                unset($item['reason_of_visit']);            
+                unset($item['service_accessed']);            
             }            
             $headers = $enroleeVisits[0];
             $headers = collect($headers)->keys()->mapWithKeys(function ($item) {

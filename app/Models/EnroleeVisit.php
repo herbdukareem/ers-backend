@@ -17,7 +17,8 @@ class EnroleeVisit extends Model
         'lga',
         'ward',
         'facility_id',
-        'reason_of_visit',
+        'reason_for_visit',
+        'service_accessed',
         'date_of_visit',
         'reporting_month',
         'activated_user_id',
@@ -35,8 +36,8 @@ class EnroleeVisit extends Model
         return Facility::find($this?->facility_id)?->hcpname;
     }
 
-    public function getReasonAttribute(){
-        return Service::find($this?->reason_of_visit)?->case_name;
+    public function getServiceAttribute(){
+        return Service::find($this?->service_accessed)?->case_name;
     }
     
     public function getNameOfEnroleeAttribute(){
@@ -48,5 +49,5 @@ class EnroleeVisit extends Model
         return $this->belongsTo(ActivatedUser::class,'activated_user_id');
     }
 
-    protected $appends = ['lga_name', 'ward_name', 'facility', 'name_of_enrolee', 'reason'];
+    protected $appends = ['lga_name', 'ward_name', 'facility', 'name_of_enrolee', 'service'];
 }

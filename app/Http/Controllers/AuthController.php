@@ -34,23 +34,23 @@ class AuthController
     public function login(Request $request)
     {
     
-        $request->validate([
-            'activation_code' => 'required',
-            'password' => 'required',
-        ]);
-             
-        $user = User::where(['nicare_code'=> $request->activation_code, 'password'=>md5($request->get('password'))])->first();
-        //return !Hash::check($request->get('password'), $user?->password);
-        if (!$user) {
-            throw new \Exception('Incorrect credentials', 401);
-        }    
-        $services = Service::all();
-        $enrolees = Enrolee::select('id','enrolee_type','surname','first_name','other_name','enrolment_number','phone_number','sex','lga','ward','provider_id')
-                    ->where(['lga'=> $user->lga, 'ward'=>$user->ward, 'provider_id'=>$user->provider_id])->get();
-        $accessToken = $user->createToken('AuthToken')->accessToken;            
-        return new UtilResource(["services"=> $services, "user" => $user,'enrolees'=>$enrolees, "accessToken" => $accessToken ], false, 200);       
         try{    
               
+            $request->validate([
+                'activation_code' => 'required',
+                'password' => 'required',
+            ]);
+                 
+            $user = User::where(['nicare_code'=> $request->activation_code, 'password'=>md5($request->get('password'))])->first();
+            //return !Hash::check($request->get('password'), $user?->password);
+            if (!$user) {
+                throw new \Exception('Incorrect credentials', 401);
+            }    
+            $services = Service::all();
+            $enrolees = Enrolee::select('id','enrolee_type','surname','first_name','other_name','enrolment_number','phone_number','sex','lga','ward','provider_id')
+                        ->where(['lga'=> $user->lga, 'ward'=>$user->ward, 'provider_id'=>$user->provider_id])->get();
+            $accessToken = $user->createToken('AuthToken')->accessToken;            
+            return new UtilResource(["services"=> $services, "user" => $user,'enrolees'=>$enrolees, "accessToken" => $accessToken ], false, 200);       
         }catch (ValidationException $e) {
             return new UtilResource($e->errors(), true, 400);
         } catch (\Exception $e) {
@@ -65,7 +65,7 @@ class AuthController
             $user =  User::find($id);
             $enrolees = Enrolee::select('id','enrolee_type','surname','first_name','other_name','enrolment_number','phone_number','sex','lga','ward','provider_id')
             ->where(['lga'=> $user->lga, 'ward'=>$user->ward, 'provider_id'=>$user->provider_id])->get();
-            return new UtilResource(["services"=> $services, "user" => $user,'enrolees'=>$enrolees ], false, 200);       
+            return new UtilResource(["services"=> $services, "user" => $user,'enrolees'=>$enrolees, "accessToken" => $accessToken ], false, 200);       
         }catch (ValidationException $e) {
             return new UtilResource($e->errors(), true, 400);
         } catch (\Exception $e) {

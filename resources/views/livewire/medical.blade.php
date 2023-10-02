@@ -11,36 +11,21 @@
         <thead>
             <tr>
                 <th>S/N</th>
-                <th>Name</th>
-                <th>Nicare ID</th>
-                <th>LGA</th>
-                <th>Ward</th>
-                <th>Phone Number</th>
-                <th>Reporting Month</th>
-                <th>Date of Visit</th>
-                <th>Reason for Visit</th>
-                <th>Service Accessed</th>
+                <th>Facility</th>                                
+                <th>Amount</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($enroleeVisits as $i=> $visit)
+            @foreach($medical_bills as $i=> $visit)
             <tr>
-                <td>{{ ($enroleeVisits->perPage() * ($enroleeVisits->currentPage() - 1)) + $i+1}}</td>
-                <td>{{$visit->name_of_enrolee}}</td>
-                <td>{{$visit->nicare_id}}</td>
-                <td>{{$visit->lga_name}}</td>
-                <td>{{$visit->ward_name}}</td>
-                <td>{{$visit->phone_number}}</td>
-                <td>{{$visit->reporting_month}}</td>
-                <td>{{$visit->date_of_visit}}</td>
-                <td>{{$visit->reason_for_visit}}</td>
-                <td>{{$visit->service}}</td>
+                <td>{{ ($medical_bills->perPage() * ($medical_bills->currentPage() - 1)) + $i+1}}</td> <td>{{$visit->facility}}</td>                
+                <td>{{$visit->amount}}</td>
             </tr>
             @endforeach
         </tbody>
     </table>
     <div class="pagi">
-        {{$enroleeVisits->links()}}
+        {{$medical_bills->links()}}
     </div>
 
     <canvas wire:key="{{ $chatkey }}" id="genderCountsChart" style="width: 100%;height:400px;"></canvas>
@@ -48,7 +33,7 @@
 
 <script>
 
-   
+   /* 
 var datasets = [];
 var dateColorMap = []
     document.addEventListener("livewire:load", function() {
@@ -56,12 +41,7 @@ var dateColorMap = []
         initializeChart(JSON.parse(newChart));
     });
 
-        /*  alert(3)
-         var reasons = JSON.parse(@json($reasons));
-         var maleCounts = JSON.parse(@json($maleCounts));
-         var femaleCounts = JSON.parse(@json($femaleCounts));
-         var totalCounts = JSON.parse(@json($totalCounts));
-         var reporting_month = JSON.parse(@json($reporting_month)); */
+
     
          initializeChart(JSON.parse(@json($chartData)))
 
@@ -180,7 +160,7 @@ var dateColorMap = []
             }
         }
     });
-
+ */
     // Listen for changes in the AirDatepicker input field
 </script>
 <style>

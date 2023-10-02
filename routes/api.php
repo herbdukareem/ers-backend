@@ -36,6 +36,8 @@ Route::prefix('auth')->group(function () {
 Route::group(['middleware'=>'auth:api'], function () {
         
     // Users routes    
+    
+    Route::post('/meds/save', [EnroleeVisitController::class, 'medsSave']);
     Route::post('/enrolee-visits/bulk', [EnroleeVisitController::class, 'storeBulk']);
     Route::get('/enrolee-visits', [EnroleeVisitController::class, 'fetchVisits']);
     Route::post('/enrolee-visits', [EnroleeVisitController::class, 'fetchVisits']);

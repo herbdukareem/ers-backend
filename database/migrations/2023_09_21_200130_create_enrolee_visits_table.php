@@ -22,7 +22,8 @@ return new class extends Migration
             $table->unsignedBigInteger('lga');
             $table->unsignedBigInteger('ward');
             $table->unsignedBigInteger('facility_id');
-            $table->string('reason_of_visit');
+            $table->string('service_accessed');
+            $table->string('reason_for_visit');
             $table->date('date_of_visit');
             $table->string('reporting_month');
             $table->timestamps();         

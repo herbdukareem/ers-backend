@@ -18,5 +18,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/medicals', function () {
+    return view('medicals');
+});
+
 
 Route::get('email_verify/{verify?}',[AuthController::class, 'verifyEmail']);

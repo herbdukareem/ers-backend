@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Capitation;
 use App\Models\EnroleeVisit;
+use App\Models\MedicalBill;
+use App\Models\User;
 use App\Transformers\UtilResource;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -17,7 +20,7 @@ class EnroleeVisitController extends Controller
         try{
         
         $data = $request->input('enrolee_visits');
-
+    
         if (!empty($data) && is_array($data)) {
             // Ensure the data follows the expected structure
             $validatedData = [];
@@ -25,7 +28,7 @@ class EnroleeVisitController extends Controller
                 if (
                     isset($visitData['nicare_id'],
                     $visitData['sex'], $visitData['phone'], $visitData['lga'], $visitData['ward'],
-                    $visitData['facility_id'], $visitData['reason_of_visit'], $visitData['date_of_visit'],
+                    $visitData['facility_id'], $visitData['reason_for_visit'], $visitData['date_of_visit'],
                     $visitData['reporting_month'])
                 ) {
                     $validatedData[] =[
@@ -36,13 +39,14 @@ class EnroleeVisitController extends Controller
                         'sex'=>$visitData['sex'],
                         'facility_id'=>$visitData['facility_id'],
                         'phone'=>$visitData['phone'],
-                        'reason_of_visit'=> $visitData['reason_of_visit'],
+                        'reason_for_visit'=> $visitData['reason_for_visit'],
+                        'service_accessed'=> $visitData['service_accessed'],
                         'date_of_visit'=>Carbon::parse($visitData['date_of_visit'])->format('Y-m-d'),
                         'reporting_month'=>Carbon::parse($visitData['reporting_month'])->format('F, Y'),
                         'created_at'=>Carbon::now(),
                     ];
                 }
-            }            
+            }                 
                 // Insert the validated data in bulk
                 if (!empty($validatedData)) {
                     EnroleeVisit::insert($validatedData);
@@ -50,6 +54,7 @@ class EnroleeVisitController extends Controller
                 }
             }            
         }catch(\Exception $e){
+            
             return new UtilResource($e->getMessage(), false, 400);                   
         }
     }
@@ -78,6 +83,24 @@ class EnroleeVisitController extends Controller
             }
             return new UtilResource($response, false, 200);                   
         } catch (\Exception $e) {
+            return new UtilResource($e->getMessage(), false, 400);                   
+        }
+    }
+
+    public function medsSave(Request $request){
+        try{
+            $user = User::find($request->get('user_id'));
+            $totalCaps = Capitation::where('provider_id', $user->facility_id)->sum('total_cap') ?? 0;
+            MedicalBill::updateOrCreate([
+                "facility_id"=>$user->provider_id,
+                "month"=>$request->get('month')                
+            ],[
+                "remaining_amount"=>  $totalCaps - $request->get('amount'),
+                "main_amount"=>  $totalCaps,
+                "amount"=>  $request->get('amount')
+            ]);
+            return new UtilResource('Saved successful', false, 200);                           
+        }catch(\Exception $e){
             return new UtilResource($e->getMessage(), false, 400);                   
         }
     }
