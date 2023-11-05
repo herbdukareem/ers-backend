@@ -1,10 +1,41 @@
+
 <div class="w-100 px-3 mt-4">
-    <div class="mb-3">
-        <label>Filter</label>
-        <div class="w-75 d-flex">
-            <input id="input" wire:model="dateRange" class="form-control" autocomplete="off">
-            <button wire:click="clear" class="btn btn-light mx-2" wire:loading.attr="disabled">Clear</button>
-            <button wire:click="exportData" class="btn btn-light mx-2" wire:loading.attr="disabled">Export</button>
+    <div class="">
+        <div class="row round p-3 card flex-row bg-light d-flex justify-content-between border">
+            <div class="col-md-2">
+                <label>Filter</label>
+                <input id="input" wire:model="dateRange" class="form-control" autocomplete="off">
+            </div>
+            <div class="col-md-2">
+                <label>LGA</label>
+                <select class="form-control" autocomplete="off" wire:model="searchLga" >
+                    <option value=""></option>
+                    @foreach($lgas as $lga)
+                        <option value="{{$lga->id}}">{{$lga->lga}}</option>
+                    @endforeach
+                </select>                
+            </div>
+            <div class="col-md-2">
+                <label>Ward</label>
+                <select class="form-control" autocomplete="off" wire:model="searchWard" >
+                    @foreach($wards as $ward)
+                        <option value="{{$ward->id}}">{{$ward->ward}}</option>
+                    @endforeach
+                </select> 
+            </div>
+            <div class="col-md-2">
+                <label>Facility</label>
+                <select class="form-control" autocomplete="off" wire:model="searchFacility" >
+                    <option value=""></option>
+                    @foreach($facilities as $facility)
+                        <option value="{{$facility->id}}">{{$facility->hcpname}}</option>
+                    @endforeach
+                </select>                 
+            </div>
+            <div class="col-md-2">
+                <button wire:click="clear" class="btn btn-light mx-2" wire:loading.attr="disabled">Clear</button>
+                <button wire:click="exportData" class="btn btn-light mx-2" wire:loading.attr="disabled">Export</button>
+            </div>
         </div>
     </div>
     <table class="table table-condensed table-bordered shadow-sm">
@@ -15,11 +46,13 @@
                 <th>Nicare ID</th>
                 <th>LGA</th>
                 <th>Ward</th>
+                <th>Facility</th>
                 <th>Phone Number</th>
                 <th>Reporting Month</th>
                 <th>Date of Visit</th>
                 <th>Reason for Visit</th>
                 <th>Service Accessed</th>
+                <th>Referred</th>
             </tr>
         </thead>
         <tbody>
@@ -30,20 +63,28 @@
                 <td>{{$visit->nicare_id}}</td>
                 <td>{{$visit->lga_name}}</td>
                 <td>{{$visit->ward_name}}</td>
+                <td>{{$visit->facility}}</td>
                 <td>{{$visit->phone_number}}</td>
                 <td>{{$visit->reporting_month}}</td>
                 <td>{{$visit->date_of_visit}}</td>
                 <td>{{$visit->reason_for_visit}}</td>
                 <td>{{$visit->service}}</td>
+                <td>{{$visit->referred}}</td>
             </tr>
             @endforeach
         </tbody>
     </table>
-    <div class="pagi">
-        {{$enroleeVisits->links()}}
+    <div class="flex">
+        <div class="pagi">
+            {{$enroleeVisits->links()}}
+        </div>
+    </div>
+    <div class="mt-3">
+        <p class=" my-1 text-danger fw-bold"> Total Referred: {{$referred}}</p>
+        <p class="my-1 text-danger fw-bold"> Total Non Referred: {{$not_referred}}</p>
     </div>
 
-    <canvas wire:key="{{ $chatkey }}" id="genderCountsChart" style="width: 100%;height:400px;"></canvas>
+    <canvas wire:key="{{ $chatkey }}" id="genderCountsChart" style="width: 100%;height:700px;"></canvas>
 </div>
 
 <script>
@@ -104,7 +145,7 @@ var dateColorMap = []
                 borderColor: getDateColor(item.service),
                 data: [],
                 borderRadius: 15,
-                barPercentage: 3,
+                barPercentage: 1.005,
             };
 
             // Loop through the data points for each city
@@ -116,13 +157,12 @@ var dateColorMap = []
             data.labels = dateRange;
             data.datasets.push(dataset);
 
-        });
-
+        });        
 
         var ctx = document.getElementById('genderCountsChart').getContext('2d');
         var chart = new Chart(ctx, {
             type: 'bar', // Change the chart type to bar
-            data,
+            data,          
             options: {
                 title: {
                     display: true,
@@ -171,9 +211,11 @@ var dateColorMap = []
         firstDay: 0
     };
     let datepicker = new AirDatepicker('#input', {
-        locale: localeEn,
-        range: true,
+        locale: localeEn,        
         multipleDatesSeparator: ' - ',
+        view: 'months',
+        minView: 'months',
+        dateFormat: 'MMMM yyyy',
         onSelect: function(formattedDate, date, inst) {
             if (formattedDate.formattedDate.length > 1) {
                 @this.set('dateRange', formattedDate.formattedDate)

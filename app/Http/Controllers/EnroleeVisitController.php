@@ -10,6 +10,7 @@ use App\Transformers\UtilResource;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
 
 class EnroleeVisitController extends Controller
 {
@@ -20,7 +21,7 @@ class EnroleeVisitController extends Controller
         try{
         
         $data = $request->input('enrolee_visits');
-    
+        DB::beginTransaction();
         if (!empty($data) && is_array($data)) {
             // Ensure the data follows the expected structure
             $validatedData = [];
@@ -31,30 +32,35 @@ class EnroleeVisitController extends Controller
                     $visitData['facility_id'], $visitData['reason_for_visit'], $visitData['date_of_visit'],
                     $visitData['reporting_month'])
                 ) {
-                    $validatedData[] =[
-                        'activated_user_id'=>$request->input('activated_user_id'),
-                        'nicare_id'=>$visitData['nicare_id'],                                                                        
-                        'lga'=>$visitData['lga_id'],
-                        'ward'=>$visitData['ward_id'],
-                        'sex'=>$visitData['sex'],
-                        'facility_id'=>$visitData['facility_id'],
-                        'phone'=>$visitData['phone'],
-                        'reason_for_visit'=> $visitData['reason_for_visit'],
-                        'service_accessed'=> $visitData['service_accessed'],
-                        'date_of_visit'=>Carbon::parse($visitData['date_of_visit'])->format('Y-m-d'),
-                        'reporting_month'=>Carbon::parse($visitData['reporting_month'])->format('F, Y'),
-                        'created_at'=>Carbon::now(),
-                    ];
+                    foreach($visitData['service_accessed'] as $seviceId) { 
+                        $validatedData[] =[
+                            'activated_user_id'=>$request->input('activated_user_id'),
+                            'nicare_id'=>$visitData['nicare_id'],                                                                        
+                            'lga'=>$visitData['lga_id'],
+                            'ward'=>$visitData['ward_id'],
+                            'sex'=>$visitData['sex'],
+                            'facility_id'=>$visitData['facility_id'],
+                            'phone'=>$visitData['phone'],
+                            'referred'=>$visitData['referred']??'no',
+                            'reason_for_visit'=> $visitData['reason_for_visit'],
+                            'service_accessed'=> $seviceId,
+                            'date_of_visit'=>Carbon::parse($visitData['date_of_visit'])->format('Y-m-d'),
+                            'reporting_month'=>Carbon::parse($visitData['reporting_month'])->format('F, Y'),
+                            'created_at'=>Carbon::now(),
+                        ];                        
+                    }
                 }
-            }                 
+            }
+            DB::commit();                 
                 // Insert the validated data in bulk
                 if (!empty($validatedData)) {
                     EnroleeVisit::insert($validatedData);
                     return new UtilResource('Bulk insert successful', false, 200);                           
                 }
-            }            
+            }    
+
         }catch(\Exception $e){
-            
+            DB::rollBack();
             return new UtilResource($e->getMessage(), false, 400);                   
         }
     }

@@ -22,8 +22,11 @@ class EnroleeVisit extends Model
         'date_of_visit',
         'reporting_month',
         'activated_user_id',
+        'referred'
     ];
-
+    protected $casts = [
+        'reporting_month'=>'datetime:F, Y'
+    ];
     public function getLgaNameAttribute(){
         return Lga::find($this?->lga)?->lga;
     }

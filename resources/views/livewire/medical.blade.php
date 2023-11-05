@@ -1,8 +1,15 @@
+<?php
+
+use Carbon\Carbon;
+
+ $e = -1; ?>
 <div class="w-100 px-3 mt-4">
     <div class="mb-3">
         <label>Filter</label>
         <div class="w-75 d-flex">
+            <div></div>
             <input id="input" wire:model="dateRange" class="form-control" autocomplete="off">
+            <input id="input2" wire:model="dateRange" type="number" class="form-control ms-2" autocomplete="off">
             <button wire:click="clear" class="btn btn-light mx-2" wire:loading.attr="disabled">Clear</button>
             <button wire:click="exportData" class="btn btn-light mx-2" wire:loading.attr="disabled">Export</button>
         </div>
@@ -13,17 +20,17 @@
                 <th>S/N</th>
                 <th>Facility</th>                                
                 <th>Month</th>                                
-                <th>Capitation</th>
-                <th>Amount</th>
+                <th>Capitation Received</th>
+                <th>Medical Bill</th>
             </tr>
         </thead>
         <tbody>
             @foreach($medical_bills as $i=> $visit)
             <tr>
                 <td>{{ ($medical_bills->perPage() * ($medical_bills->currentPage() - 1)) + $i+1}}</td> <td>{{$visit->facility}}</td>                
-                <td>{{$visit->month}}</td>
-                <td>{{$visit->main_amount}}</td>
-                <td>{{$visit->amount}}</td>
+                <td><?php echo  Carbon::parse($visit->month)->format('F, Y') ?> </td>
+                <td>{{ number_format($visit->main_amount)}}</td>
+                <td>{{number_format($visit->amount)}}</td>
             </tr>
             @endforeach
         </tbody>
@@ -32,11 +39,7 @@
         {{$medical_bills->links()}}
     </div>
         <br><br>
-    <?php
 
-use Carbon\Carbon;
-
- $e = -1; ?>
     @foreach($chartData as $key=> $chart)    
         <h3 class="text-center"><?php echo Carbon::parse($key)->format('F, Y'); ?></h3>
         <canvas wire:key="{{ $chatkey }}" id="chart{{$e++}}" style="width: 100%;height:400px;"></canvas>
@@ -90,7 +93,7 @@ var dateColorMap = []
 
         datasetsD.forEach((item) => {
         const datasetAmount = {
-            label: item.facility + ' - Medical Amount',
+            label: item.facility + ' - Medical Bill',
             backgroundColor: getDateColor(item.facility),
             borderColor: getDateColor(item.facility),
             data: [],
@@ -99,7 +102,7 @@ var dateColorMap = []
         };
 
         const datasetOriginalAmount = {
-            label: item.facility + ' - Capitation Amount',
+            label: item.facility + ' - Capitation Received',
             backgroundColor: getDateColor(item.facility)+88,
             borderColor: getDateColor(item.facility)+88,
             data: [],

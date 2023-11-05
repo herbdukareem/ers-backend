@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Mail\SendMail;
 use App\Models\ActivatedUser;
 use App\Models\Enrolee;
+use App\Models\EnroleeVisit;
 use App\Models\Service;
 use App\Services\UserService;
 use App\Transformers\UtilResource;
@@ -46,11 +47,13 @@ class AuthController
             if (!$user) {
                 throw new \Exception('Incorrect credentials', 401);
             }    
-            $services = Service::all();
+            $services = Service::where('level_of_care','Primary')->get();
             $enrolees = Enrolee::select('id','enrolee_type','surname','first_name','other_name','enrolment_number','phone_number','sex','lga','ward','provider_id')
                         ->where(['lga'=> $user->lga, 'ward'=>$user->ward, 'provider_id'=>$user->provider_id])->get();
             $accessToken = $user->createToken('AuthToken')->accessToken;            
-            return new UtilResource(["services"=> $services, "user" => $user,'enrolees'=>$enrolees, "accessToken" => $accessToken ], false, 200);       
+            $previous_month = Carbon::now()->subMonth();
+            $enroleesVisit = EnroleeVisit::where('reporting_month', $previous_month)->get();
+            return new UtilResource(["services"=> $services, "user" => $user,'enrolees'=>$enrolees, "accessToken" => $accessToken, "live"=>$enroleesVisit ], false, 200);       
         }catch (ValidationException $e) {
             return new UtilResource($e->errors(), true, 400);
         } catch (\Exception $e) {
@@ -61,11 +64,11 @@ class AuthController
 
     public function enrolees($id){
         try {
-            $services = Service::all();
+            $services = Service::where('level_of_care','Primary')->get();
             $user =  User::find($id);
             $enrolees = Enrolee::select('id','enrolee_type','surname','first_name','other_name','enrolment_number','phone_number','sex','lga','ward','provider_id')
             ->where(['lga'=> $user->lga, 'ward'=>$user->ward, 'provider_id'=>$user->provider_id])->get();
-            return new UtilResource(["services"=> $services, "user" => $user,'enrolees'=>$enrolees, "accessToken" => $accessToken ], false, 200);       
+            return new UtilResource(["services"=> $services, "user" => $user,'enrolees'=>$enrolees,  ], false, 200);       
         }catch (ValidationException $e) {
             return new UtilResource($e->errors(), true, 400);
         } catch (\Exception $e) {
