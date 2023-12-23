@@ -80,8 +80,8 @@
             </tbody>
         </table>
     </div>
-    <div class="flex justify-center mt-4">
-        <div class="pagination">
+    <div class=" mt-4">
+        <div class="pagination px-4 py-4">
             {{$enroleeVisits->links()}}
         </div>
     </div>
