@@ -36,5 +36,6 @@ class User extends Authenticatable
         return Facility::find($this->facility_id)?->hcpname;
     }
 
+    protected $appends = ['lga_name', 'ward_name', 'facility'];
 
 }

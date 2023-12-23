@@ -1,90 +1,98 @@
 
-<div class="w-100 px-3 mt-4">
-    <div class="">
-        <div class="row round p-3 card flex-row bg-light d-flex justify-content-between border">
-            <div class="col-md-2">
-                <label>Filter</label>
-                <input id="input" wire:model="dateRange" class="form-control" autocomplete="off">
+<div class="w-full mt-4 ">
+    <div class="bg-white rounded  pb-3 border-0 border-transparent border-solid shadow-xl dark:bg-slate-850 dark:shadow-dark-xl rounded-2xl bg-clip-border">
+    <div class="p-3" >
+        <div class="flex flex-wrap p-3 rounded-lg card justify-between">
+            <div class="w-full md:w-1/6">
+                <label class="block">Filter</label>
+                <input id="input" wire:model="dateRange" class="w-full border" autocomplete="off">
             </div>
-            <div class="col-md-2">
-                <label>LGA</label>
-                <select class="form-control" autocomplete="off" wire:model="searchLga" >
+            <div class="w-full md:w-1/6">
+                <label class="block">LGA</label>
+                <select class="w-full border" autocomplete="off" wire:model="searchLga">
                     <option value=""></option>
                     @foreach($lgas as $lga)
-                        <option value="{{$lga->id}}">{{$lga->lga}}</option>
+                    <option value="{{$lga->id}}">{{$lga->lga}}</option>
                     @endforeach
-                </select>                
+                </select>
             </div>
-            <div class="col-md-2">
-                <label>Ward</label>
-                <select class="form-control" autocomplete="off" wire:model="searchWard" >
+            <div class="w-full md:w-1/6">
+                <label class="block">Ward</label>
+                <select class="w-full border" autocomplete="off" wire:model="searchWard">
+                    <option value=""></option>
                     @foreach($wards as $ward)
-                        <option value="{{$ward->id}}">{{$ward->ward}}</option>
+                    <option value="{{$ward->id}}">{{$ward->ward}}</option>
                     @endforeach
-                </select> 
+                </select>
             </div>
-            <div class="col-md-2">
-                <label>Facility</label>
-                <select class="form-control" autocomplete="off" wire:model="searchFacility" >
+            <div class="w-full md:w-1/6">
+                <label class="block">Facility</label>
+                <select class="w-full border" autocomplete="off" wire:model="searchFacility">
                     <option value=""></option>
                     @foreach($facilities as $facility)
-                        <option value="{{$facility->id}}">{{$facility->hcpname}}</option>
+                    <option value="{{$facility->id}}">{{$facility->hcpname}}</option>
                     @endforeach
-                </select>                 
+                </select>
             </div>
-            <div class="col-md-2">
-                <button wire:click="clear" class="btn btn-light mx-2" wire:loading.attr="disabled">Clear</button>
-                <button wire:click="exportData" class="btn btn-light mx-2" wire:loading.attr="disabled">Export</button>
+            <div class="w-full md:w-1/6 flex items-center">
+                <button wire:click="clear" class="btn btn-light mx-2 hover:text-[skyblue]" wire:loading.attr="disabled">Clear</button>
+                <button wire:click="exportData" class="btn btn-light mx-2 hover:text-[skyblue]" wire:loading.attr="disabled">Export</button>
             </div>
         </div>
+        <hr class="gradient-hr">
     </div>
-    <table class="table table-condensed table-bordered shadow-sm">
-        <thead>
-            <tr>
-                <th>S/N</th>
-                <th>Name</th>
-                <th>Nicare ID</th>
-                <th>LGA</th>
-                <th>Ward</th>
-                <th>Facility</th>
-                <th>Phone Number</th>
-                <th>Reporting Month</th>
-                <th>Date of Visit</th>
-                <th>Reason for Visit</th>
-                <th>Service Accessed</th>
-                <th>Referred</th>
-            </tr>
-        </thead>
-        <tbody>
+    
+    <div class="overflow-x-auto">
+        <table  class="min-w-full text-left text-sm font-light">
+        <thead class="border-b font-medium dark:border-neutral-500">
+                <tr>
+                    <th scope="col" class="px-6 py-1">S/N</th>
+                    <th scope="col" class="px-6 py-1">Name</th>
+                    <th scope="col" class="px-6 py-1">Nicare ID</th>
+                    <th scope="col" class="px-6 py-1">LGA</th>
+                    <th scope="col" class="px-6 py-1">Ward</th>
+                    <th scope="col" class="px-6 py-1">Facility</th>
+                    <th scope="col" class="px-6 py-1">Phone Number</th>
+                    <th scope="col" class="px-6 py-1">Reporting Month</th>
+                    <th scope="col" class="px-6 py-1">Date of Visit</th>
+                    <th scope="col" class="px-6 py-1">Reason for Visit</th>
+                    <th scope="col" class="px-6 py-1">Service Accessed</th>
+                    <th scope="col" class="px-6 py-1">Referred</th>
+                </tr>
+            </thead>
+            <tbody>
             @foreach($enroleeVisits as $i=> $visit)
-            <tr>
-                <td>{{ ($enroleeVisits->perPage() * ($enroleeVisits->currentPage() - 1)) + $i+1}}</td>
-                <td>{{$visit->name_of_enrolee}}</td>
-                <td>{{$visit->nicare_id}}</td>
-                <td>{{$visit->lga_name}}</td>
-                <td>{{$visit->ward_name}}</td>
-                <td>{{$visit->facility}}</td>
-                <td>{{$visit->phone_number}}</td>
-                <td>{{$visit->reporting_month}}</td>
-                <td>{{$visit->date_of_visit}}</td>
-                <td>{{$visit->reason_for_visit}}</td>
-                <td>{{$visit->service}}</td>
-                <td>{{$visit->referred}}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-    <div class="flex">
-        <div class="pagi">
+                <tr  class="border-b transition duration-300 ease-in-out hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600">
+                    <td class="whitespace-nowrap px-6 py-4 font-medium">{{ ($enroleeVisits->perPage() * ($enroleeVisits->currentPage() - 1)) + $i+1}}</td>
+                    <td class="whitespace-nowrap px-6 py-4">{{$visit->name_of_enrolee}}</td>
+                    <td class="whitespace-nowrap px-6 py-4">{{$visit->nicare_id}}</td>
+                    <td class="whitespace-nowrap px-6 py-4">{{$visit->lga_name}}</td>
+                    <td class="whitespace-nowrap px-6 py-4">{{$visit->ward_name}}</td>
+                    <td class="whitespace-nowrap px-6 py-4">{{$visit->facility}}</td>
+                    <td class="whitespace-nowrap px-6 py-4">{{$visit->phone_number}}</td>
+                    <td class="whitespace-nowrap px-6 py-4">{{$visit->reporting_month}}</td>
+                    <td class="whitespace-nowrap px-6 py-4">{{$visit->date_of_visit}}</td>
+                    <td class="whitespace-nowrap px-6 py-4">{{$visit->reason_for_visit}}</td>
+                    <td class="whitespace-nowrap px-6 py-4">{{$visit->service}}</td>
+                    <td class="whitespace-nowrap px-6 py-4">{{$visit->referred}}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    <div class="flex justify-center mt-4">
+        <div class="pagination">
             {{$enroleeVisits->links()}}
         </div>
     </div>
-    <div class="mt-3">
-        <p class=" my-1 text-danger fw-bold"> Total Referred: {{$referred}}</p>
-        <p class="my-1 text-danger fw-bold"> Total Non Referred: {{$not_referred}}</p>
     </div>
-
-    <canvas wire:key="{{ $chatkey }}" id="genderCountsChart" style="width: 100%;height:700px;"></canvas>
+    <div class="mt-4 bg-white rounded p-2 my-5 border-0 border-transparent border-solid shadow-xl dark:bg-slate-850 dark:shadow-dark-xl rounded-2xl bg-clip-border ">
+        <p class="my-1 text-red-600 font-semibold">Total Referred: {{$referred}}</p>
+        <p class="my-1 text-red-600 font-semibold">Total Non Referred: {{$not_referred}}</p>
+    </div>
+    <div class="bg-white rounded border-0 border-transparent border-solid shadow-xl dark:bg-slate-850 dark:shadow-dark-xl rounded-2xl bg-clip-border ">
+        <canvas wire:key="{{ $chatkey }}" id="genderCountsChart" style="width: 100%;height:700px;"></canvas>
+    </div>
 </div>
 
 <script>

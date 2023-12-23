@@ -10,4 +10,6 @@ class Facility extends Model
     use HasFactory;
     protected $connection = 'external_db';
     protected $table = 'tbl_providers';
+
+    
 }

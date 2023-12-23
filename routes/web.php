@@ -16,11 +16,15 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('Enrollee-Visits');
 
 Route::get('/medicals', function () {
     return view('medicals');
-});
+})->name('Medicals');
+
+Route::get('/dashboard', function () {
+    return view('welcome');
+})->name('Dashboard');
 
 
 Route::get('email_verify/{verify?}',[AuthController::class, 'verifyEmail']);
