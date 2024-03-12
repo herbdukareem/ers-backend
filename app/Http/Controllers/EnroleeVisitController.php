@@ -44,8 +44,8 @@ class EnroleeVisitController extends Controller
                             'referred'=>$visitData['referred']??'no',
                             'reason_for_visit'=> $visitData['reason_for_visit'],
                             'service_accessed'=> $seviceId,
-                            'date_of_visit'=>Carbon::parse($visitData['date_of_visit'])->format('Y-m-d'),
-                            'reporting_month'=>Carbon::parse($visitData['reporting_month'])->format('F, Y'),
+                            'date_of_visit'=>$visitData['date_of_visit'],
+                            'reporting_month'=>$visitData['reporting_month'],
                             'created_at'=>Carbon::now(),
                         ];                        
                     }
