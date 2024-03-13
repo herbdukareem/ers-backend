@@ -2,23 +2,29 @@
 
 use Illuminate\Support\Facades\Route;
 ?>
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
+<html>
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Laravel</title>
-    <script src="{{asset('datepicker.js')}}"></script>
+    <title>ERS</title>
+    <script src="{{asset('datepicker.js')}}"></script>    
     <link href="{{asset('datepicker.css')}}" rel="stylesheet">
+
     <!-- Fonts -->
     <link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous"> -->
     <!-- Styles -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.7/axios.min.js" integrity="sha512-NQfB/bDaB8kaSXF8E77JjhHG5PM6XVRxvHzkZiwl3ddWCEPBa23T76MuWSwAJdMGJnmQqM0VeY9kFszsrBEFrQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+
     <script src="{{asset('chartjs.js')}}"></script>
     <style>
         /*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
@@ -391,25 +397,58 @@ use Illuminate\Support\Facades\Route;
             }
         }
     </style>
-    @livewireStyles
+    
     <style>
         body {
             font-family: 'Nunito', sans-serif;
         }
+        .trax {
+            transform: translateX(-310px) !important;
+        }
+        
+.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+  opacity: 0;
+}
+.loader {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  background: linear-gradient(0deg, rgba(45, 61, 180, 0.2) 33%, #fff 100%);
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+.loader::after {
+  content: '';  
+  box-sizing: border-box;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #263238;
+}
+@keyframes rotation {
+  0% { transform: rotate(0deg) }
+  100% { transform: rotate(360deg)}
+} 
     </style>
 </head>
 
-<body class="m-0 font-sans antialiased font-normal dark:bg-slate-900 text-base leading-default bg-gray-50 text-slate-500 overflow-hidden">
+<body class="m-0 font-sans antialiased font-normal  text-base leading-default bg-[skyblue]/75 text-slate-500 overflow-hidden">
 <canvas id="canvas" class="absolute z-[-1] w-full block"></canvas>
-    <div class="absolute bg-border-radius  z-[-2] w-full bg-[skyblue]/75 dark:hidden" style="height: 300px;"></div>
-    <main class=" w-full xl:w-[82vw]  lg:ml-auto h-full max-h-screen transition-all duration-200 ease-in-out rounded-xl ps  xl:px-5 px-2  pl-2 py-5">
+    <!-- <div class="absolute bg-border-radius  z-[-2] w-full bg-[skyblue]/75 dark:hidden" style="height: 300px;"></div> -->
+    <main class="lg:ml-auto h-full max-h-screen transition-all duration-200 ease-in-out rounded-xl ps  xl:px-5 px-2  pl-2 py-5">
 
-        <div id="appRoot" class="sticky top-[1%]">
-            <div class="w-full h-[100] block lg:hidden fixed  inset-y-0 z-[100001] " @click="showMenu =false" v-if="showMenu"></div>
+        <div id="app" class="sticky top-[1%]">
+            <i class="top-0 left-0 fas fa-bars fixed text-gray-700   z-[100001] " @click="showMenu =false" v-if="showMenu"></i>
             <!-- Side Bar Begins -->
-            <aside :class="{'translate-x-0':showMenu}" class="fixed inset-y-0 z-[100002] flex-wrap items-center justify-between block  w-2/3 md:w-1/2 lg:w-1/3 xl:w-[17vw] xl:w-[15vw] xl:left-0 xl:translate-x-0 lg:translate-x-[-100%] p-0 my-4 overflow-y-auto antialiased transition-transform duration-200 -translate-x-full bg-white border-0 dark:shadow-none dark:bg-blue-850 ease-nav-brand z-990 xl:ml-6 rounded-2xl    shadow-xl" aria-expanded="false">
-                <div class="h-[100%] relative">
-                    <i @click="showMenu =false" class="absolute top-0 right-0 p-4 opacity-50 cursor-pointer fas fa-times dark:text-white text-slate-400 xl:hidden" sidenav-close="" aria-hidden="true">&times</i>
+            <aside  :class="{'trax':showMenu}" class="fixed translate-x-0 inset-y-0 z-[100002] flex-wrap items-center justify-between block  w-2/3 md:w-1/2 lg:w-1/3 xl:w-[17vw] xl:w-[15vw] xl:left-0 p-0 my-4 overflow-y-auto antialiased transition-transform duration-200 -translate-x-full bg-white border-0 dark:shadow-none dark:bg-blue-850 ease-nav-brand z-990 xl:ml-6 rounded-2xl    shadow-xl" aria-expanded="false">
+                <div class="h-[100%] relative">                    
+                    <i @click="hideMenu()" class="absolute top-0 right-0 p-4 opacity-50 cursor-pointer fas fa-times dark:text-white text-slate-400" sidenav-close="" aria-hidden="true"></i>
                     <a class="block px-8 py-6 m-0 text-sm whitespace-nowrap dark:text-white text-slate-700" href="/">
                         <img src="{{asset('ers.webp')}}" class="inline h-full max-w-full transition-all duration-200 dark:hidden ease-nav-brand max-h-8" alt="main_logo">
                         <img src="../assets/img/logo-ct.png" class="hidden h-full max-w-full transition-all duration-200 dark:inline ease-nav-brand max-h-8" alt="main_logo">
@@ -417,30 +456,30 @@ use Illuminate\Support\Facades\Route;
                     </a>
                     <hr class="gradient-hr">
                     <ul class="flex flex-col pl-0 mb-0 mt-3">
-                        <li class="mt-0.5 w-full" :class="">                            
-                            <a href="/dashboard" :class="{'bg-blue-500/[.12]':(currentRoute=='Dashboard')}" class="py-2 dark:text-white dark:opacity-80 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors" >
+                        <li class="mt-0.5 w-full" >                            
+                            <a href="/dashboard" :class="{'bg-blue-500/12':(currentRoute=='Dashboard')}" class="py-2 dark:text-white dark:opacity-80 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors" >
                                 <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">                                
                                     <i class="relative fa fa-gauge top-0 leading-normal text-blue-500 ni ni-tv-2 text-sm"></i>
                                 </div>
                                 <span class="ml-1 duration-300 opacity-100 pointer-events-none ease">Dashboard</span>
                             </a>
                         </li>
-                        <li class="mt-0.5 w-full" :class="">                            
-                            <a href="/" :class="{'bg-blue-500/[.12]':(currentRoute=='Enrollee-Visits')}" class="py-2 dark:text-white dark:opacity-80 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors" >
-                                <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
-                                    <i class="relative fa fa-stethoscope top-0 leading-normal text-blue-500 ni ni-tv-2 text-sm"></i>
+                        <li class="mt-0.5 w-full" >                            
+                            <a href="/" :class="{'bg-blue-500/12':(currentRoute=='Enrollee-Visits')}" class="py-2 dark:text-white dark:opacity-80 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors" >
+                                <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">                                
+                                    <i class="relative fa fa-gauge top-0 leading-normal text-blue-500 ni ni-tv-2 text-sm"></i>
                                 </div>
                                 <span class="ml-1 duration-300 opacity-100 pointer-events-none ease">Enrolee Visits</span>
                             </a>
                         </li>
-                        <li class="mt-0.5 w-full" :class="">                            
-                            <a href="/medicals" :class="{'bg-blue-500/[.12]':(currentRoute=='Medicals')}" class="py-2 dark:text-white dark:opacity-80 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors" >
+                        <li class="mt-0.5 w-full" >                            
+                            <a href="/medicals" :class="{'bg-blue-500/12':(currentRoute=='Medicals')}" class="py-2 dark:text-white dark:opacity-80 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors" >
                                 <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">                                
-                                    <i class="relative fa fa-coins top-0 leading-normal text-blue-500 ni ni-tv-2 text-sm"></i>
+                                    <i class="relative fa fa-gauge top-0 leading-normal text-blue-500 ni ni-tv-2 text-sm"></i>
                                 </div>
-                                <span class="ml-1 duration-300 opacity-100 pointer-events-none ease">Medical Bill</span>
+                                <span class="ml-1 duration-300 opacity-100 pointer-events-none ease">Medicals Bill</span>
                             </a>
-                        </li>
+                        </li>               
                     </ul>
                     <div class="absolute bottom-[20px] inset-x-2">
                         <hr class="gradient-hr mb-5">
@@ -469,9 +508,15 @@ use Illuminate\Support\Facades\Route;
                         <div class="flex items-center md:ml-auto md:pr-4 mr-2">
                             <div class="relative flex flex-wrap items-stretch w-full transition-all rounded-lg ease">
                                 <span class="text-sm ease leading-5.6 absolute z-50 -ml-px flex h-full items-center whitespace-nowrap rounded-lg rounded-tr-none rounded-br-none border border-r-0 border-transparent bg-transparent py-2 px-2.5 text-center font-normal text-slate-500 transition-all">
+                                    <i class="fas fa-calendar" aria-hidden="true"></i>
+                                </span>
+                                <input id="input" v-model="dateRange" class="pl-9 text-sm focus:shadow-primary-outline ease w-1/100 leading-5.6 relative -ml-px block min-w-0 flex-auto rounded-lg border border-solid border-gray-300 dark:bg-slate-850 dark:text-white bg-white bg-clip-padding py-2 pr-3 text-gray-700 transition-all placeholder:text-gray-500 focus:border-blue-500 focus:outline-none focus:transition-shadow" autocomplete="off">                                
+                            </div>
+                            <div class="relative flex flex-wrap items-stretch w-full transition-all rounded-lg ease mx-2">
+                                <span class="text-sm ease leading-5.6 absolute z-50 -ml-px flex h-full items-center whitespace-nowrap rounded-lg rounded-tr-none rounded-br-none border border-r-0 border-transparent bg-transparent py-2 px-2.5 text-center font-normal text-slate-500 transition-all">
                                     <i class="fas fa-search" aria-hidden="true"></i>
                                 </span>
-                                <input type="text" class="pl-9 text-sm focus:shadow-primary-outline ease w-1/100 leading-5.6 relative -ml-px block min-w-0 flex-auto rounded-lg border border-solid border-gray-300 dark:bg-slate-850 dark:text-white bg-white bg-clip-padding py-2 pr-3 text-gray-700 transition-all placeholder:text-gray-500 focus:border-blue-500 focus:outline-none focus:transition-shadow" placeholder="Type here...">
+                                <input type="text" @input="sendWindowEvent($event)" class="pl-9 text-sm focus:shadow-primary-outline ease w-1/100 leading-5.6 relative -ml-px block min-w-0 flex-auto rounded-lg border border-solid border-gray-300 dark:bg-slate-850 dark:text-white bg-white bg-clip-padding py-2 pr-3 text-gray-700 transition-all placeholder:text-gray-500 focus:border-blue-500 focus:outline-none focus:transition-shadow" placeholder="Type here...">
                             </div>
                         </div>
                         <ul class="flex flex-row justify-end pl-0 mb-0 list-none md-max:w-full">
@@ -498,28 +543,84 @@ use Illuminate\Support\Facades\Route;
             </nav>
             <!-- Top Bar Ends -->
         </div>
-        <div>
+        <div class="w-full">
             @yield('content')
         </div>
     </main>
     <script>
         window.onload = function() {
+            const laravelCurrentRouteName = '<?= Route::currentRouteName(); ?>'; 
 
-            const {
-                createApp
-            } = Vue
-
+            const {createApp} = Vue
             createApp({
                 data() {
                     return {
-                        showMenu: false,
-                        currentRoute: '<?= Route::currentRouteName()?>'
+                        dateRange2:[],
+                        test:true,
+                        showMenu: true, 
+                        currentRoute: laravelCurrentRouteName,
+                    };
+                },
+                methods:{
+                    hideMenu(){                                              
+                        this.showMenu =true
+                    },
+                    sendWindowEvent(event){
+                        // Create a new custom event with the input's value
+                        const customEvent = new CustomEvent('custom-input-event', {
+                            detail: { value: event.target.value },
+                        });
+                        // Dispatch the event on the window object
+                        window.dispatchEvent(customEvent);
+                    },
+                },
+                watch: {
+                    dateRange2(newVal, oldVal) {
+                    // Your logic when dateRange2 changes
+                    const customEvent = new CustomEvent('custom-date-event', {
+                        detail: { value: newVal }, // Use newVal to access the updated value
+                    });
+                    // Dispatch the event on the window object
+                    window.dispatchEvent(customEvent);
                     }
+                },
+                mounted(){
+                    let localeEn = {
+                    days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+                    daysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                    daysMin: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+                    months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                    monthsShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    today: 'Today',
+                    clear: 'Clear',
+                    dateFormat: 'yyyy-MM-dd',
+                    timeFormat: 'hh:ii aa',
+                    firstDay: 0
+                };
+                let datepicker = new AirDatepicker('#input', {
+                    locale: localeEn,        
+                    range:true,
+                    multipleDatesSeparator: ' - ',
+                    view: 'months',
+                    minView: 'months',
+                    dateFormat: 'dd-MM-yyyy',
+                    onSelect:(formattedDate, date, inst) =>{
+                        if(formattedDate.formattedDate.length >1){
+                            
+                            const customEvent = new CustomEvent('custom-date-event', {
+                                detail: formattedDate.formattedDate, // Use newVal to access the updated value
+                            });
+                            // Dispatch the event on the window object
+                            window.dispatchEvent(customEvent);
+                            this.dateRange2 = formattedDate.formattedDate                        
+                        }
+                    }
+                });
                 }
-            }).mount('#appRoot')
+            }).mount('#app')
         }
     </script>
-    @livewireScripts
+    
     <style>
         .ps {
             overflow-y: scroll !important;

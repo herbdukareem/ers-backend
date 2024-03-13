@@ -29,7 +29,7 @@ class User extends Authenticatable
     }
 
     public function getWardNameAttribute(){
-        return Ward::find($this->ward)?->ward;
+        return Ward::find($this->ward)?->wards;
     }
 
     public function getFacilityAttribute(){

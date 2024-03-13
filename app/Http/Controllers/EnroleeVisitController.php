@@ -22,13 +22,14 @@ class EnroleeVisitController extends Controller
         
         $data = $request->input('enrolee_visits');
         DB::beginTransaction();
+        
         if (!empty($data) && is_array($data)) {
             // Ensure the data follows the expected structure
             $validatedData = [];
-            foreach ($data as $visitData) {
+            foreach ($data as $visitData) {                
                 if (
                     isset($visitData['nicare_id'],
-                    $visitData['sex'], $visitData['phone'], $visitData['lga'], $visitData['ward'],
+                    $visitData['sex'], $visitData['phone'], $visitData['lga_id'], $visitData['ward_id'],
                     $visitData['facility_id'], $visitData['reason_for_visit'], $visitData['date_of_visit'],
                     $visitData['reporting_month'])
                 ) {
@@ -44,8 +45,8 @@ class EnroleeVisitController extends Controller
                             'referred'=>$visitData['referred']??'no',
                             'reason_for_visit'=> $visitData['reason_for_visit'],
                             'service_accessed'=> $seviceId,
-                            'date_of_visit'=>$visitData['date_of_visit'],
-                            'reporting_month'=>$visitData['reporting_month'],
+                            'date_of_visit'=>Carbon::parse($visitData['date_of_visit'])->format('Y-m-d'),
+                            'reporting_month'=>Carbon::parse($visitData['reporting_month'])->format('Y-m-d'),
                             'created_at'=>Carbon::now(),
                         ];                        
                     }
@@ -95,14 +96,12 @@ class EnroleeVisitController extends Controller
 
     public function medsSave(Request $request){
         try{
-            $user = User::find($request->get('user_id'));
-            $totalCaps = Capitation::where('provider_id', $user->facility_id)->sum('total_cap') ?? 0;
+            $user = User::find($request->get('user_id'));            
             MedicalBill::updateOrCreate([
                 "facility_id"=>$user->provider_id,
                 "month"=>$request->get('month')                
-            ],[
-                "remaining_amount"=>  $totalCaps - $request->get('amount'),
-                "main_amount"=>  $totalCaps,
+            ],[                
+                "capitation_id"=> $request->get('capitation_id'),
                 "amount"=>  $request->get('amount')
             ]);
             return new UtilResource('Saved successful', false, 200);                           
