@@ -451,7 +451,7 @@ use Illuminate\Support\Facades\Route;
                     <i @click="hideMenu()" class="absolute top-0 right-0 p-4 opacity-50 cursor-pointer fas fa-times dark:text-white text-slate-400" sidenav-close="" aria-hidden="true"></i>
                     <a class="block px-8 py-6 m-0 text-sm whitespace-nowrap dark:text-white text-slate-700" href="/">
                         <img src="{{asset('ers.webp')}}" class="inline h-full max-w-full transition-all duration-200 dark:hidden ease-nav-brand max-h-8" alt="main_logo">
-                        <img src="../assets/img/logo-ct.png" class="hidden h-full max-w-full transition-all duration-200 dark:inline ease-nav-brand max-h-8" alt="main_logo">
+                        <img src="/img/logo-ct.png" class="hidden h-full max-w-full transition-all duration-200 dark:inline ease-nav-brand max-h-8" alt="main_logo">
                         <span class="ml-1 font-semibold transition-all duration-200 ease-nav-brand">ERS</span>
                     </a>
                     <hr class="gradient-hr">

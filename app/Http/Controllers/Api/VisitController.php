@@ -114,33 +114,37 @@ class VisitController extends Controller
     public function medicalsBillsReport(Request $request)
     {
         try {
-
-            $external_db  = env('EX_DB_DATABASE');
-            $internal_db  = env('DB_DATABASE');
-            $medicaBills = DB::table($internal_db.'.medical_bills as m')
-                            ->join($external_db.'.capitations as c', 'c.id','m.capitation_id')->query();    
+            $external_db = env('EX_DB_DATABASE');
+            $internal_db = env('DB_DATABASE');
+        
+            $medicaBills = DB::table($internal_db . '.medical_bills as m')
+                ->join($external_db . '.capitations as c', 'c.id', 'm.capitation_id')
+                ->join($external_db . '.capitation_grouping as g', 'g.id', 'c.group_id');
+        
             $dateRange = $request->input('dateRange');
-            if(empty($dateRange)){
-                $dateRange[0] = Carbon::now()->subMonth()->startOfMonth()->toDateString();
-                $dateRange[1] = Carbon::now()->subMonth()->endOfMonth()->toDateString();
+            if (empty($dateRange)) {
+                    //$dateRange[0] = Carbon::now()->startOfMonth()->toDateString();
+                //$dateRange[1] = Carbon::now()->endOfMonth()->toDateString();
+                $dateRange[0] = Carbon::parse('1995-01-01')->format('Y-m-d');
+                $dateRange[1] = Carbon::now()->format('Y-m-d');
             }
-            
-            $medicaBills->select('m.month',
-                            DB::raw('SUM(total_cap) as cap_toal_amount'),
-                            DB::raw('SUM(m.amount) as total_amount')
-                            )
-            ->groupBy('month')->whereBetween('month', $dateRange)->get();    
-            $total_main = 0;
-            $total = 0;
-            $medicaBills->each(function($item)use($total,$total_main){
-                $total += $item->cap_toal_amount;
-                $total_main += $item->total_main_amount;
-            });
-
-            return response()->json(['medicals' => $medicaBills, "prosit"=>$total-$total_main]);
-        } catch (\Exception $e) {
+        
+            $medicaBills = $medicaBills->selectRaw('CONCAT(SUBSTRING(g.month_full,1,3),", ", g.cap_year) as date, SUM(total_cap) as cap_total_amount, SUM(m.amount) as total_amount')                
+                ->groupBy('g.cap_year','g.month_full')
+                ->orderBy('c.id')
+                ->whereBetween('m.month', $dateRange)
+                ->get();
+        
+            $total = number_format($medicaBills->sum('cap_total_amount'),2,'.',',');
+        
+            return response()->json([
+                'medicals' => $medicaBills,
+                "prosit" => $total, // Assuming total_main is not needed
+            ]);
+        } catch (\Exception $e) {            
             return response()->json($e->getMessage(), 400);
         }
+        
     }
 
     public function encountersLastMonth()

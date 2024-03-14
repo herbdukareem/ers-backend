@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Capitation;
+use App\Models\CapitationGroup;
 use App\Models\EnroleeVisit;
 use App\Models\MedicalBill;
 use App\Models\User;
@@ -97,9 +98,11 @@ class EnroleeVisitController extends Controller
     public function medsSave(Request $request){
         try{
             $user = User::find($request->get('user_id'));            
+            $capitation = Capitation::find($request->get('capitation_id'));
+            $cap = CapitationGroup::find($capitation->group_id);
             MedicalBill::updateOrCreate([
                 "facility_id"=>$user->provider_id,
-                "month"=>$request->get('month')                
+                "month"=>Carbon::parse($cap->cap_year.'-'.$cap->month.'1')->format('Y-m-d')             
             ],[                
                 "capitation_id"=> $request->get('capitation_id'),
                 "amount"=>  $request->get('amount')

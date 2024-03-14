@@ -63,6 +63,7 @@ class Visits extends Component
             'facilities' => $facilities,
         ]);
     }
+    
 
     // ... (exportData and clear methods remain the same)
 

@@ -13,7 +13,7 @@ $facilities = Facility::all();
 @section('content')
 
 <div class="w-full mt-4 bg-[black] p-5 text-white" style="border-radius: 25px;" id="appRoot2">
-    <div class="grid grid-cols-4 w-full gap-5 mb-5">
+    <div class="grid md:grid-cols-4 grid-cols-1 w-full gap-5 mb-5">
         <div class="chart-container p-3 grid md:grid-cols-2 grid-cols-1">
             <span class="">Total Enrolee Visit</span>
             <h4 class=" font-bold text-xl">@{{encountersAnalytics?.total_visits}}</h4>
@@ -31,12 +31,13 @@ $facilities = Facility::all();
             <h4 class=" font-bold text-xl">@{{encountersAnalytics?.total_visits - encountersAnalytics?.total_referrals}}</h4>
         </div>
     </div>
-    <div :key="chartRefresh" class="grid grid-cols-3 w-full gap-5">
+    <div :key="chartRefresh" class="grid md:grid-cols-3 grid-cols-1 w-full gap-5">
         <div id="topAccessedChart" class="chart-container col-span-1  h-[250px] bg-[transparent]"></div>
         <div id="visitsBySexChart" class="chart-container col-span-1 h-[250px]"></div>
         <div id="visitsByModeOfEnrolmentChart" class="chart-container col-span-1 h-[250px]"></div>
         <div id="topfacilityAccessed" class="chart-container col-span-1 h-[250px]"></div>
-        <div id="topWardAccessed" class="chart-container col-span-1 h-[250px]"></div>        
+        <div id="topWardAccessed" class="chart-container col-span-1 h-[250px]"></div>      
+        <div id="medicalsChart" class="chart-container col-span-1 h-[250px]"></div>  
     </div>    
 
     <transition name="fade">
@@ -180,6 +181,85 @@ $facilities = Facility::all();
 
                 }
             },
+            plotLineChart(chartId, categories, capTotalAmountName, capTotalAmountData, totalAmountName, totalAmountData, titleG,subtitle) {
+                    Highcharts.chart(chartId, {
+                        chart: {
+                            zoomType: 'xy',
+                            plotBackgroundColor: null,
+                            backgroundColor: null,
+                            plotBorderWidth: null,
+                            plotShadow: false},
+                        title: { text: titleG, style:{color:'#fff'} },
+                        xAxis: {
+                            categories: categories,
+                            crosshair: true,
+                            labels:{
+                                style:{color:'#fff'}
+
+                            }
+                        },
+                        yAxis: [
+                            {
+                                labels:{
+                                    format: '₦{value}', style:{color:'#fff'} 
+                                },
+                                title:null
+                             /*    title:{                                
+                                    text: capTotalAmountName, style:{color:'#fff'} 
+                                }, */
+                            },
+                            {
+                                labels:{
+                                    format: '₦{value}', style:{color:'#fff'} 
+                                },
+                                title:null
+                             /*    title:{                                
+                                    text: totalAmountName, style:{color:'#fff'} 
+                                }, */
+                            },
+                        ],
+                        plotOptions: {
+                            line: {
+                                dataLabels: { enabled: true },
+                                enableMouseTracking: true
+                            }
+                        },
+                        tooltip: {
+                            shared: true
+                        },
+                        subtitle: {
+                            text: subtitle,
+                            align: 'center',
+                            style:{color:'#fff', fontWeight:'bolder'}
+                        },
+                        legend: {
+                            align: 'center',
+                            x: 0,
+                            verticalAlign: 'bottom',
+                            y: 20,
+                            floating: true,
+                            alignColumns:false,
+                            itemHoverStyle:{color:'#fff', fontSize: "0.55em"},
+                            itemStyle:{color:'#fff', fontSize: "0.55em"},
+                            backgroundColor:null
+                        },
+                        series: [{
+                            name: capTotalAmountName,
+                            type: 'column',
+                            data: capTotalAmountData,
+                            tooltip: {
+                                valuePrefix: '₦'
+                            }
+                        }, {
+                            name: totalAmountName,
+                            type: 'spline',
+                            data: totalAmountData,
+                            tooltip: {
+                                valuePrefix: '₦'
+                            }
+                        }]
+                    });
+                },
             searchedDate(e) {
        
                 this.filters.dateRange = e.detail.value
@@ -220,6 +300,11 @@ $facilities = Facility::all();
                     const response = await axios.post('reports/medical/analytics', this.filters);
                     this.medicalAnalytics = response.data
                     this.loading = false
+                    const categories = this.medicalAnalytics.medicals.map(item => item.date);
+                    const capTotalAmountData = this.medicalAnalytics.medicals.map(item => parseInt(item.cap_total_amount));
+                    const totalAmountData = this.medicalAnalytics.medicals.map(item => item.total_amount);
+
+                    this.plotLineChart('medicalsChart', categories, 'CAP Total Amount', capTotalAmountData, 'Total Amount', totalAmountData, "Medical Bills By Months","Prosit: ₦"+this.medicalAnalytics.prosit);
                 } catch (e) {
 
                 }
