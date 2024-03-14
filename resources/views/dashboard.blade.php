@@ -302,7 +302,7 @@ $facilities = Facility::all();
                     this.loading = false
                     const categories = this.medicalAnalytics.medicals.map(item => item.date);
                     const capTotalAmountData = this.medicalAnalytics.medicals.map(item => parseInt(item.cap_total_amount));
-                    const totalAmountData = this.medicalAnalytics.medicals.map(item => item.total_amount);
+                    const totalAmountData = this.medicalAnalytics.medicals.map(item => item.total_medicalbill_amount);
 
                     this.plotLineChart('medicalsChart', categories, 'CAP Total Amount', capTotalAmountData, 'Total Amount', totalAmountData, "Medical Bills By Months","Prosit: ₦"+this.medicalAnalytics.prosit);
                 } catch (e) {
