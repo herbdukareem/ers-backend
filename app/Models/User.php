@@ -29,8 +29,17 @@ class User extends Authenticatable
     }
 
     public function getWardNameAttribute(){
-        return Ward::find($this->ward)?->wards;
+        $name = Ward::find($this->ward)?->ward;
+        if(empty($name)){
+            try{
+                $name = Ward::where('sn',$this->ward)?->wards;
+            }catch(\Exception $e){
+                
+            }
+        }
+        return $name;
     }
+
 
     public function getFacilityAttribute(){
         return Facility::find($this->facility_id)?->hcpname;
