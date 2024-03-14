@@ -19,7 +19,15 @@ class Enrolee extends Model
     }
 
     public function getWardNameAttribute(){
-        return Ward::find(intval($this->ward))?->ward;
+        $name = Ward::find(intval($this->ward))?->ward;
+        if(empty($name)){
+            try{
+                $name = Ward::where('sn',$this->ward)?->wards;
+            }catch(\Exception $e){
+                
+            }
+        }
+        return $name;
     }
 
     public function getFacilityAttribute(){

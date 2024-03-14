@@ -9,5 +9,6 @@ class Ward extends Model
 {
     use HasFactory;
     protected $connection = 'external_db';
-    protected $table = 'tbl_wards';
+    protected $table = 'ward';
+    
 }
