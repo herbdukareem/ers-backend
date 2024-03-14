@@ -129,13 +129,13 @@ class VisitController extends Controller
                 $dateRange[1] = Carbon::now()->format('Y-m-d');
             }
         
-            $medicaBills = $medicaBills->selectRaw('CONCAT(SUBSTRING(g.month_full,1,3),", ", g.cap_year) as date, SUM(total_cap) as cap_total_amount, SUM(m.amount) as total_amount')                
+            $medicaBills = $medicaBills->selectRaw('CONCAT(SUBSTRING(g.month_full,1,3),", ", g.cap_year) as date, SUM(total_cap) as cap_total_amount, SUM(m.amount) as total_medicalbill_amount')                
                 ->groupBy('g.cap_year','g.month_full')
                 ->orderBy('c.id')
                 ->whereBetween('m.month', $dateRange)
                 ->get();
         
-            $total = number_format($medicaBills->sum('cap_total_amount'),2,'.',',');
+            $total = number_format($medicaBills->sum('cap_total_amount') - $medicaBills->sum('total_medicalbill_amount'),2,'.',',');
         
             return response()->json([
                 'medicals' => $medicaBills,
