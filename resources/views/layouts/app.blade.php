@@ -443,49 +443,62 @@ use Illuminate\Support\Facades\Route;
     <!-- <div class="absolute bg-border-radius  z-[-2] w-full bg-[skyblue]/75 dark:hidden" style="height: 300px;"></div> -->
     <main class="lg:ml-auto h-full max-h-screen transition-all duration-200 ease-in-out rounded-xl ps  xl:px-5 px-2  pl-2 py-5">
 
-        <div id="app" class="sticky top-[1%]">
+        <div id="app" class="sticky top-[1%] z-[2]">
             <i class="top-0 left-0 fas fa-bars fixed text-gray-700   z-[100001] " @click="showMenu =false" v-if="showMenu"></i>
             <!-- Side Bar Begins -->
             <aside  :class="{'trax':showMenu}" class="fixed translate-x-0 inset-y-0 z-[100002] flex-wrap items-center justify-between block  w-2/3 md:w-1/2 lg:w-1/3 xl:w-[17vw] xl:w-[15vw] xl:left-0 p-0 my-4 overflow-y-auto antialiased transition-transform duration-200 -translate-x-full bg-white border-0 dark:shadow-none dark:bg-blue-850 ease-nav-brand z-990 xl:ml-6 rounded-2xl    shadow-xl" aria-expanded="false">
                 <div class="h-[100%] relative">                    
                     <i @click="hideMenu()" class="absolute top-0 right-0 p-4 opacity-50 cursor-pointer fas fa-times dark:text-white text-slate-400" sidenav-close="" aria-hidden="true"></i>
-                    <a class="block px-8 py-6 m-0 text-sm whitespace-nowrap dark:text-white text-slate-700" href="/">
-                        <img src="{{asset('ers.webp')}}" class="inline h-full max-w-full transition-all duration-200 dark:hidden ease-nav-brand max-h-8" alt="main_logo">
-                        <img src="/img/logo-ct.png" class="hidden h-full max-w-full transition-all duration-200 dark:inline ease-nav-brand max-h-8" alt="main_logo">
-                        <span class="ml-1 font-semibold transition-all duration-200 ease-nav-brand">ERS</span>
+                    <a class="block px-8 py-6 m-0 text-sm whitespace-nowrap dark:text-white text-sky-700" href="/">                        
+                        <i class="fa-brands fa-medium inline h-full max-w-full transition-all duration-200 dark:hidden ease-nav-brand max-h-8 text-xl"></i>
+                        <i class="fa-brands fa-medium hidden h-full max-w-full transition-all duration-200 dark:inline ease-nav-brand max-h-8  text-xl"></i>
+                        <span class="ml-1 font-semibold transition-all duration-200 ease-nav-brand  text-xl">ERS</span>
                     </a>
                     <hr class="gradient-hr">
                     <ul class="flex flex-col pl-0 mb-0 mt-3">
-                        <li class="mt-0.5 w-full" >                            
-                            <a href="/dashboard" :class="{'bg-blue-500/12':(currentRoute=='Dashboard')}" class="py-2 dark:text-white dark:opacity-80 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors" >
-                                <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">                                
-                                    <i class="relative fa fa-gauge top-0 leading-normal text-blue-500 ni ni-tv-2 text-sm"></i>
+                        
+                        <li class="mt-0.5 w-full" >                                                         
+                        
+                            <a  @click="toggleMenu($event, 'dashboard')" :class="{'bg-blue-500/12':(currentRoute=='Dashboard')}" class="hover:bg-slate-100 py-2 dark:text-white dark:opacity-80 text-md ease-nav-brand my-0 mx-2 flex items-center justify-between whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors" >
+                                <div class="mr-2 flex h-8 w-8 items-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">                                
+                                    <i class="relative fa fa-gauge top-0 leading-normal text-sky-500 ni ni-tv-2 text-lg"></i>
+                                    <span class="ml-3 duration-300 opacity-100 pointer-events-none ease">Dashboard</span>
                                 </div>
-                                <span class="ml-1 duration-300 opacity-100 pointer-events-none ease">Dashboard</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                            <Transition name="fade">
+                                <ul class="mb-2 pb-1" v-if="openMenus?.dashboard">
+                                    <li class="p-1 hover:text-sky-500 hover:underline ml-[60px] text-sm">
+                                        <i class="fas  fa-minus-circle mr-2"></i><a href="/excutive-dashboard">Executive Dashboard</a></li>                                    
+                                    <li class="p-1 hover:text-sky-500 hover:underline ml-[60px] text-sm">
+                                        <i class="fas  fa-minus-circle mr-2"></i><a href="/ers-dashboard">Service Utilization</a></li>                                    
+                                </ul>
+                            </Transition>
+                        </li>
+                        <hr class="gradient-hr">
+                        <li class="mt-0.5 w-full" >                            
+                            <a href="/" :class="{'bg-blue-500/12':(currentRoute=='Enrollee-Visits')}" class="hover:bg-slate-100 py-2 dark:text-white dark:opacity-80 text-md ease-nav-brand my-0 mx-2 flex items-center justify-between whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors" >
+                                <div class="mr-2 flex h-8 w-8 items-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">                                
+                                    <i class="relative fa-solid fa-hospital-user top-0 leading-normal text-sky-500 ni ni-tv-2 text-lg"></i>                                    
+                                    <span class="ml-3 duration-300 opacity-100 pointer-events-none ease">Enrolee Visits</span>
+                                </div>
                             </a>
                         </li>
+                        <hr class="gradient-hr">
                         <li class="mt-0.5 w-full" >                            
-                            <a href="/" :class="{'bg-blue-500/12':(currentRoute=='Enrollee-Visits')}" class="py-2 dark:text-white dark:opacity-80 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors" >
-                                <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">                                
-                                    <i class="relative fa fa-gauge top-0 leading-normal text-blue-500 ni ni-tv-2 text-sm"></i>
+                            <a href="/medicals" :class="{'bg-blue-500/12':(currentRoute=='Medicals')}" class="hover:bg-slate-100 py-2 dark:text-white dark:opacity-80 text-md ease-nav-brand my-0 mx-2 flex items-center justify-between whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors" >
+                                <div class="mr-2 flex h-8 w-8 items-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">                                
+                                    <i class="relative fa-solid fa-money-bill-trend-up top-0 leading-normal text-sky-500 ni ni-tv-2 text-lg"></i>
+                                    <span class="ml-3 duration-300 opacity-100 pointer-events-none ease">Medicals Bill</span>                                
                                 </div>
-                                <span class="ml-1 duration-300 opacity-100 pointer-events-none ease">Enrolee Visits</span>
-                            </a>
-                        </li>
-                        <li class="mt-0.5 w-full" >                            
-                            <a href="/medicals" :class="{'bg-blue-500/12':(currentRoute=='Medicals')}" class="py-2 dark:text-white dark:opacity-80 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors" >
-                                <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">                                
-                                    <i class="relative fa fa-gauge top-0 leading-normal text-blue-500 ni ni-tv-2 text-sm"></i>
-                                </div>
-                                <span class="ml-1 duration-300 opacity-100 pointer-events-none ease">Medicals Bill</span>
                             </a>
                         </li>               
                     </ul>
                     <div class="absolute bottom-[20px] inset-x-2">
                         <hr class="gradient-hr mb-5">
                         <div class="mx-auto flex justify-center items-center">
-                            <img src="{{asset('nicare.jpg')}}" class="w-[50px] ml-2 inline" />
-                            <img src="{{asset('niger_state.png')}}" class="w-[50px] ml-2 inline" />
+                            <img src="{{asset('nicare.jpg')}}" class="w-[30px] ml-2 inline" />
+                            <img src="{{asset('niger_state.png')}}" class="w-[30px] ml-2 inline" />
                         </div>
                     </div>
                 </div>
@@ -500,7 +513,7 @@ use Illuminate\Support\Facades\Route;
                             <li class="leading-normal text-sm">
                                 <a class="text-dark opacity-50" href="javascript:;">Pages</a>
                             </li>
-                            <li class="text-sm pl-2 capitalize leading-normal text-dark before:float-left before:pr-2 before:text-white before:content-['/']" aria-current="page">{{ Route::currentRouteName() }}</li>
+                            <li class="text-sm pl-2 capitalize leading-normal text-dark before:float-left before:pr-2 before:text-white before:content-['/']" aria-current="page">{{ str_replace('_',' ',Route::currentRouteName()) }}</li>
                         </ol>
                         <!-- <h6 class="mb-0 font-bold text-white capitalize"></h6> -->
                     </nav>
@@ -555,6 +568,9 @@ use Illuminate\Support\Facades\Route;
             createApp({
                 data() {
                     return {
+                        datePickerResolver:0,                        
+                        inceptionDate:true,
+                        openMenus: {},
                         dateRange2:[],
                         test:true,
                         showMenu: true, 
@@ -562,6 +578,10 @@ use Illuminate\Support\Facades\Route;
                     };
                 },
                 methods:{
+                    toggleMenu(event, menuName) {                        
+                        event.preventDefault();                      
+                        this.openMenus[menuName] = !this.openMenus[menuName];
+                    },
                     hideMenu(){                                              
                         this.showMenu =true
                     },
@@ -573,8 +593,11 @@ use Illuminate\Support\Facades\Route;
                         // Dispatch the event on the window object
                         window.dispatchEvent(customEvent);
                     },
-                },
+                },                
                 watch: {
+                    datePickerResolver(newVal,oldVal){
+                      
+                    },
                     dateRange2(newVal, oldVal) {
                     // Your logic when dateRange2 changes
                     const customEvent = new CustomEvent('custom-date-event', {
@@ -585,6 +608,15 @@ use Illuminate\Support\Facades\Route;
                     }
                 },
                 mounted(){
+                    window.inceptionDate = this.inceptionDate
+                    window.datePickerResolved = true
+                    window.datePickerResolver = 0;
+                    window.clearDate = false
+                    window.addEventListener('datepickerResolverEvent', function(e){
+                        setTimeout(()=>{
+                            window.datePickerResolved = true;
+                        },2500)
+                    });
                     let localeEn = {
                     days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
                     daysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
@@ -603,18 +635,50 @@ use Illuminate\Support\Facades\Route;
                     multipleDatesSeparator: ' - ',
                     view: 'months',
                     minView: 'months',
-                    dateFormat: 'dd-MM-yyyy',
+                    dateFormat: 'yyyy-MM-dd',
                     onSelect:(formattedDate, date, inst) =>{
-                        if(formattedDate.formattedDate.length >1){
-                            
+
+                        if(formattedDate.formattedDate.length >1 && window.datePickerResolved){                                  
                             const customEvent = new CustomEvent('custom-date-event', {
                                 detail: formattedDate.formattedDate, // Use newVal to access the updated value
                             });
                             // Dispatch the event on the window object
                             window.dispatchEvent(customEvent);
-                            this.dateRange2 = formattedDate.formattedDate                        
+                            this.dateRange2 = formattedDate.formattedDate                    
+                            window.datePickerResolved = false
+                            const customEvent1 = new CustomEvent('datepickerResolverEvent', {
+                                detail: window.datePickerResolver +=1, 
+                            });
+                            window.dispatchEvent(customEvent1);
+                                
+                        }
+                    },
+                    buttons: [
+                    {                        
+                        content(dp) {
+                            return "Current Year"
+                        },
+                        onClick(dp) {
+                            let startDate, endDate;
+                            const currentYear = new Date().getFullYear();
+                            window.inceptionDate = !window.inceptionDate
+                            if (window.inceptionDate==false) {
+                                startDate = new Date(currentYear, 0, 1); 
+                                endDate = new Date(currentYear, 11, 31); 
+                            } else {
+                                startDate = new Date('2019', 0, 1); 
+                                endDate =  new Date(currentYear, 11, 31); 
+                            }
+                            
+
+                            dp.selectDate([startDate, endDate]);
+                            
+                           dp.update({
+                                buttons:[{content:window.inceptionDate? 'Current Year': 'Clear'}]
+                            })
                         }
                     }
+                ]
                 });
                 }
             }).mount('#app')
