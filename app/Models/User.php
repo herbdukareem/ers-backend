@@ -8,9 +8,14 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 use Laravel\Passport\HasApiTokens;
+use Spatie\Permission\Traits\HasPermissions;
+use Spatie\Permission\Traits\HasRoles;
+
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles,HasPermissions;
+    protected $with=['roles','permissions'];
+    protected $guard_name = 'web';
     protected $connection = 'external_db';
     protected $fillable = [        
     ];
@@ -27,6 +32,17 @@ class User extends Authenticatable
     public function getLgaNameAttribute(){
         return Lga::find($this->lga)?->lga;
     }
+
+    public function getUserRolesAttribute(){        
+        return $this->getRoleNames();// DB::table('roles')->whereIn('id', DB::table('model_has_roles')->where('model_id',$this->id)->pluck('role_id'))->pluck('name');
+    }
+
+    public function getRoleIdsAttribute(){        
+       return $this->roles()->pluck('id');
+    }
+    public function getPermissionIdsAttribute(){        
+        return $this->permissions()->pluck('id'); 
+     }
 
     public function getWardNameAttribute(){
         $name = Ward::find($this->ward)?->ward;
@@ -45,6 +61,6 @@ class User extends Authenticatable
         return Facility::find($this->facility_id)?->hcpname;
     }
 
-    protected $appends = ['lga_name', 'ward_name', 'facility'];
+    protected $appends = ['lga_name', 'ward_name', 'facility', 'user_roles','role_ids','permission_ids'];
 
 }

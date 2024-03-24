@@ -1,4 +1,5 @@
 <?php
 function customView($blade){        
-    return view(str_replace('\\','',env('PREFIX')).'.'.$blade);
+    
+    return view(str_replace('/','',config('constant.prefix')).'.'.$blade);
 }

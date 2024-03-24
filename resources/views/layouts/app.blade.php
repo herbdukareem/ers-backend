@@ -1,6 +1,11 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
+
+$routesWithPrimeVue = [
+    "ers_report",
+    'executive_dashboard',
+    "Enrollee-Visits"
+];
 ?>
 
 <html>
@@ -12,6 +17,9 @@ use Illuminate\Support\Facades\Route;
     <title>ERS</title>
     <script src="{{asset('datepicker.js')}}"></script>    
     <link href="{{asset('datepicker.css')}}" rel="stylesheet">
+    <link href="{{asset('style.css')}}" rel="stylesheet">
+    <link href="{{asset('vivify.css')}}" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-element-bundle.min.js"></script>
 
     <!-- Fonts -->
     <link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -24,7 +32,7 @@ use Illuminate\Support\Facades\Route;
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
     <script src="https://code.highcharts.com/highcharts.js"></script>
-
+    
     <script src="{{asset('chartjs.js')}}"></script>
     <style>
         /*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
@@ -397,7 +405,20 @@ use Illuminate\Support\Facades\Route;
             }
         }
     </style>
-    
+    @if(in_array(Route::currentRouteName(),$routesWithPrimeVue))
+        <script src="https://unpkg.com/primevue@3.50.0/core/core.min.js"></script>    
+        <script src="https://unpkg.com/primevue@3.50.0/calendar/calendar.min.js"></script>
+        <script src="https://unpkg.com/primevue@3.50.0/datatable/datatable.min.js"></script>
+        <script src="https://unpkg.com/primevue@3.50.0/column/column.min.js"></script>                
+        <script src="https://unpkg.com/primevue@3.50.0/row/row.min.js" ></script>
+        <script src="https://unpkg.com/primevue@3.50.0/columngroup/columngroup.min.js" ></script>
+        <!-- <script src="https://unpkg.com/primevue/dropdown/dropdown.min.js" ></script> -->
+        <script src="https://unpkg.com/primevue@3.50.0/speeddial/speeddial.min.js" ></script>
+        <script src="https://unpkg.com/primevue@3.50.0/selectbutton/selectbutton.min.js" ></script>    
+        <link rel="stylesheet" href="https://unpkg.com/primevue@3.50.0/resources/themes/lara-light-green/theme.css" />    
+        <link rel="stylesheet" href="https://unpkg.com/primeicons@6.0.1/primeicons.css" async>        
+    @endif
+    <script src="{{asset('dropdown.js')}}"></script>    
     <style>
         body {
             font-family: 'Nunito', sans-serif;
@@ -435,10 +456,24 @@ use Illuminate\Support\Facades\Route;
   0% { transform: rotate(0deg) }
   100% { transform: rotate(360deg)}
 } 
+
+.p-speeddial .p-speeddial-button {
+    /* Example of customizing the main button */
+    background-color: #5bcaff; /* Primary color */
+    border: none;
+}
+
+.p-speeddial .p-speeddial-item {
+    /* Example of customizing the item buttons */
+    background-color: #ffffff; /* Background color for items */
+    color: #333333; /* Text color for items */
+    border: 1px solid #dddddd; /* Border for a subtle outline */
+}
     </style>
 </head>
 
 <body class="m-0 font-sans antialiased font-normal  text-base leading-default bg-[skyblue]/75 text-slate-500 overflow-hidden">
+    
 <canvas id="canvas" class="absolute z-[-1] w-full block"></canvas>
     <!-- <div class="absolute bg-border-radius  z-[-2] w-full bg-[skyblue]/75 dark:hidden" style="height: 300px;"></div> -->
     <main class="lg:ml-auto h-full max-h-screen transition-all duration-200 ease-in-out rounded-xl ps  xl:px-5 px-2  pl-2 py-5">
@@ -490,6 +525,15 @@ use Illuminate\Support\Facades\Route;
                                 <div class="mr-2 flex h-8 w-8 items-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">                                
                                     <i class="relative fa-solid fa-money-bill-trend-up top-0 leading-normal text-sky-500 ni ni-tv-2 text-lg"></i>
                                     <span class="ml-3 duration-300 opacity-100 pointer-events-none ease">Medicals Bill</span>                                
+                                </div>
+                            </a>
+                        </li>      
+                        <hr class="gradient-hr">
+                        <li class="mt-0.5 w-full" >                            
+                            <a href="/users" :class="{'bg-blue-500/12':(currentRoute=='users')}" class="hover:bg-slate-100 py-2 dark:text-white dark:opacity-80 text-md ease-nav-brand my-0 mx-2 flex items-center justify-between whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors" >
+                                <div class="mr-2 flex h-8 w-8 items-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">                                
+                                    <i class="relative fa-solid fa-users top-0 leading-normal text-sky-500 ni ni-tv-2 text-lg"></i>
+                                    <span class="ml-3 duration-300 opacity-100 pointer-events-none ease">Users</span>                                
                                 </div>
                             </a>
                         </li>               

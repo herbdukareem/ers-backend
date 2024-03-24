@@ -57,4 +57,43 @@ class UserController extends Controller
             return new UtilResource($e->getMessage(), true, 400);
         }
     }
+
+    public function assignRole(Request $request){
+        try{
+    
+            $user = User::find($request->get('model_id'));            
+            if($request->get('type')=='assign'){
+                $user->assignRole($request->get('role'));
+            }else{                
+                $user->removeRole($request->get('role'));
+            }
+            return response('Updated Successfully',200);
+        }catch(\Exception $e){
+            if(env('APP_DEBUG')){
+                return response($e->getMessage(),400);                
+            }else{
+                return response($e->getMessage(),400);
+            }
+        }
+    }
+
+    public function assignPermission(Request $request){
+        try{
+    
+            $user = User::find($request->get('model_id'));            
+            if($request->get('type')=='assign'){
+                $user->givePermissionTo($request->get('permission'));
+            }else{
+                $user->revokePermissionTo($request->get('permission'));
+            }
+            return response('Updated Successfully',200);
+        }catch(\Exception $e){
+            if(env('APP_DEBUG')){
+                return response($e->getMessage(),400);                
+            }else{
+                return response('failed',400);
+            }
+        }
+    }
+
 }

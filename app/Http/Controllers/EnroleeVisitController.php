@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Capitation;
 use App\Models\CapitationGroup;
+use App\Models\Enrolee;
 use App\Models\EnroleeVisit;
 use App\Models\MedicalBill;
 use App\Models\User;
@@ -112,4 +113,85 @@ class EnroleeVisitController extends Controller
             return new UtilResource($e->getMessage(), false, 400);                   
         }
     }
+
+    public function index(Request $request)
+    {           
+      /*   $external_db  = env('EX_DB_DATABASE');
+        $internal_db  = env('DB_DATABASE');
+        $enroleeQuery = DB::table($external_db.'.tbl_enrolee as enrolee')
+        ->selectRaw(
+            'enrolee.id,enrolee.enrolment_number, enrolee.lga,enrolee.ward,enrolee.provider_id, p.hcpname as facility, w.ward as ward_name, l.lga as lga_name, CONCAT(enrolee.first_name, " ", enrolee.surname) as full_name' 
+        )->join($external_db.'.lga as l','l.id','enrolee.lga')
+        ->join($external_db.'.ward as w','w.id','enrolee.ward')
+        ->join($external_db.'.tbl_providers as p','p.id','enrolee.provider_id');
+        
+        // Filter enrollees with at least one visit
+        $enroleeQuery->whereExists(function ($query) use ($internal_db, $external_db) {
+            $query->select(DB::raw(1))
+                ->from($internal_db.'.enrolee_visits')
+                ->whereColumn($internal_db.'.enrolee_visits.nicare_id', '=', 'enrolee.enrolment_number');
+        });
+    
+        // Paginate enrollees
+        $paginatedEnrolees = $enroleeQuery->paginate(50);
+    
+        $enrolmentNumbers = $paginatedEnrolees->pluck('enrolment_number')->toArray();
+    
+        // Fetch visits for these enrolment numbers
+        $visits = DB::table($internal_db.'.enrolee_visits', 'ev')
+                    ->selectRaw('ev.*, pc.case_name as service')
+                    ->join($external_db.'.tbl_programme_case as pc', 'pc.id','ev.service_accessed')
+                    ->whereIn('nicare_id', $enrolmentNumbers)
+                    ->get()
+                    ->groupBy('nicare_id');
+    
+        // Attach visits to each enrollee
+        $paginatedEnrolees->getCollection()->transform(function ($enrolee) use ($visits) {
+            $enroleeVisits = $visits->get($enrolee->enrolment_number) ?? collect([]);
+            $enrolee->visits = $enroleeVisits;
+            return $enrolee;
+        }); */
+    /* 
+        $perPage = 100;
+        $page = $request->input('page', 1);
+        $offset = ($page - 1) * $perPage;
+    
+        // Subquery to get the minimum id for each nicare_id (assuming id is a unique identifier of visits)
+        $subQuery = EnroleeVisit::selectRaw('MIN(id) as id')
+            ->groupBy('nicare_id');
+    
+        // Main query to join with the subquery and get the first visit details for each nicare_id
+        $enroleeVisits = EnroleeVisit::joinSub($subQuery, 'first_visits', function ($join) {
+            $join->on('enrolee_visits.id', '=', 'first_visits.id');
+        })
+        ->select('enrolee_visits.*') // Select the columns you need
+        ->offset($offset)
+        ->limit($perPage)
+        ->get();
+    
+        // Count distinct nicare_id for total pagination
+        $totalDistinct = EnroleeVisit::distinct('nicare_id')->count();
+    
+        // Manual pagination
+        $enroleeVisitsPaginated = new \Illuminate\Pagination\LengthAwarePaginator(
+            $enroleeVisits,
+            $totalDistinct,
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+     */
+        $dateRange = $request->input('dateRange');
+        if(empty($dateRange)){            
+            $dateRange[0] = Carbon::parse('1995-01-01')->format('Y-m-d');
+            $dateRange[1] = Carbon::now()->format('Y-m-d');
+        }else{
+            $dateRange[0] = Carbon::parse($dateRange[0])->format('Y-m-d');
+            $dateRange[1] = Carbon::parse($dateRange[1])->format('Y-m-d');
+        }     
+        $enroleeVisits = EnroleeVisit::whereBetween('date_of_visit',$dateRange)->paginate(100);
+        return response()->json($enroleeVisits);
+    }
+    
+    
 }

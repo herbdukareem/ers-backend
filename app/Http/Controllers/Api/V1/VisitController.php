@@ -10,6 +10,7 @@ use App\Models\Enrolee;
 use App\Models\EnroleeVisit;
 use App\Models\LGA;
 use App\Models\MedicalBill;
+use App\Models\Service;
 use Carbon\Carbon;
 //use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -76,6 +77,25 @@ class VisitController extends Controller
                 ->limit(10)
                 ->get()->pluck('total','facility');  
 
+            $newestFacilitiesEntries = EnroleeVisit::select('created_at','facility_id',DB::raw('COUNT(*) as total'))
+                ->whereBetween('date_of_visit', [$dateRange[0], $dateRange[1]])
+                ->groupBy('created_at')
+                ->groupBy('facility_id')
+                ->orderByRaw('created_at DESC')
+                ->limit(10)
+                ->get()->map(function ($entry) {
+                    $createdAt = Carbon::parse($entry->created_at);
+                    $now = Carbon::now();
+                
+                    $sinceAdded = $now->longAbsoluteDiffForHumans($createdAt);
+                    if($sinceAdded != 'now'){
+                        $sinceAdded .= ' ago';
+                    }
+                
+                    $entry->since_added = $sinceAdded;
+                    return $entry;
+                  });
+
             $top10Wards = EnroleeVisit::select('ward',DB::raw('COUNT(*) as total'))
                 ->whereBetween('date_of_visit', [$dateRange[0], $dateRange[1]])
                 ->groupBy('ward')
@@ -104,6 +124,7 @@ class VisitController extends Controller
                 'top_accessed' => $top10Services,
                 'top_facility' => $top10Facilities,
                 'top_wards' =>$top10Wards,
+                'newest_facility_entries'=>$newestFacilitiesEntries,
                 "totalEnrolleesAll"=>number_format($totalEnrolleesAll)
             ]);
         } catch (\Exception $e) {
@@ -199,19 +220,185 @@ class VisitController extends Controller
         return response()->json([$lgas], 200);
     }
 
+    public function topAccessedService(Request $request)
+    {
+        extract($this->getChartRequestData($request));        
+
+        list($selectAs, $groupBy) = $this->getSelectAndGroupBySettings($location, $zone, $dateType,'date_of_visit');
+
+        $service_accessed_id = Service::where('case_name', $value)->value('id'); // Assuming you're only interested in the ID
+
+        // Building the initial query
+        $top10Services = EnroleeVisit::select('service_accessed', $selectAs, DB::raw('COUNT(*) as total'))
+            ->when($service_accessed_id, function ($query) use ($service_accessed_id) {
+                return $query->where('service_accessed', $service_accessed_id);
+            })->whereBetween('date_of_visit', [$dateRange[0], $dateRange[1]]);
+
+        // Applying location and zone filters       
+        $top10Services = $this->applyLocationFilters($top10Services, $location, $external_db,'enrolee_visits');
+        $top10Services = $this->applyZoneFilter($zone, $top10Services);
+
+        $top10Services = $top10Services->groupBy(DB::raw($groupBy))
+                                    ->groupBy('service_accessed')
+                                    ->groupBy('name')
+                                    ->orderByRaw('name')->get();                           
+        $transformedResult = $this->transformResults($top10Services, $dateType, $location, $zone);
+        return response()->json($transformedResult);
+    }
+
+    public function enrolleeByCategory(Request $request)
+    {
+        extract($this->getChartRequestData($request));        
+
+        list($selectAs, $groupBy) = $this->getSelectAndGroupBySettings($location, $zone, $dateType,'synced_datetime');
+        // Building the initial query
+        $query = Enrolee::select(DB::raw('COUNT(vulnerability_status) AS total'),$selectAs)                        
+                        ->whereBetween('synced_datetime',$dateRange);                            
+
+        // Applying location and zone filters       
+        $query = $this->applyLocationFilters($query, $location, $external_db,'tbl_enrolee');
+        $query = $this->applyZoneFilter($zone, $query);
+
+        $result = $query->groupBy(DB::raw($groupBy))                                    
+                                    ->groupBy('name')
+                                    ->orderByRaw('name')->get();    
+        $transformedResult = $result->map(function($item) use ($dateType, $location, $zone) {
+                    $data = [                        
+                        'total' => $item->total,
+                    ];
+                    if ($dateType && empty($location['lga_id']) && empty($zone)) {
+                        $data['name'] = $this->dateResolver($item->name, $dateType);
+                    } else {
+                        $data['name'] = $item->name;
+                    }
+                    return $data;
+                });
+        return response()->json($transformedResult);
+    }
+
+    private function transformResults($top10Services, $dateType, $location, $zone) {
+        return $top10Services->map(function($item) use ($dateType, $location, $zone) {
+            $data = [
+                'service' => $item->service,
+                'total' => $item->total,
+            ];
+            if ($dateType && empty($location['lga_id']) && empty($zone)) {
+                $data['name'] = $this->dateResolver($item->name, $dateType);
+            } else {
+                $data['name'] = $item->name;
+            }
+            return $data;
+        });
+    }
+
+    private function getChartRequestData(Request $request) {
+        $dateRange = $request->input('dateRange');
+        $dateType = $request->input('dateType'); 
+        $value = $request->input('value');
+        $dateRange = $this->getDateRange($dateRange);
+        $location = $request->input('location');
+        $location = [
+            'lga_id'=> $location['lga']['id'] ?? null,
+            'ward_id'=> $location['ward']['id'] ?? null
+        ];
+        
+        $zone = $request->input('zone');
+        $external_db  = env('EX_DB_DATABASE');
+        
+        return compact('dateRange', 'dateType', 'value', 'location', 'zone', 'external_db');
+    }    
+
+    private function getSelectAndGroupBySettings($location, $zone, $dateType, $colunm_name) {
+        $selectAs = '';
+        $groupBy = '';
+    
+        if (!empty($location['lga_id'])) {
+            if (empty($location['ward_id']) && empty($groupBy)) {
+                $selectAs = DB::raw("w.ward as name");
+                $groupBy = "w.ward";
+            }
+        }
+    
+        if (!empty($zone)) {
+            $selectAs = DB::raw("IF(l.zone = 1, 'Zone A', IF(l.zone = 2,'Zone B', 'Zone C')) as name");
+            $groupBy = "name";
+        }
+        
+        switch ($dateType) {
+            case 'days':
+                $groupBy = "DATE($colunm_name)";
+                $selectAs = DB::raw("DATE($colunm_name) as name");
+                break;
+            case 'months':
+                $groupBy = "CONCAT(YEAR($colunm_name), '-',MONTH($colunm_name))";
+                $selectAs = DB::raw("CONCAT(YEAR($colunm_name), '-',MONTH($colunm_name)) as name");
+                break;
+            case 'years':
+                $groupBy = "YEAR($colunm_name)";
+                $selectAs = DB::raw("YEAR($colunm_name) as name");
+                break;
+            default:
+                break;                
+        }
+    
+        return [$selectAs, $groupBy];
+    }
+
+    private function applyLocationFilters($query, $location, $external_db, $table_name) {
+        $query = $query->join("$external_db.lga as l", $table_name.'.lga', '=', 'l.id');
+        if (!empty($location['lga_id'])) {
+            $query = $query->where('l.id', $location['lga_id']);
+        }
+    
+        $query = $query->join("$external_db.ward as w", $table_name.'.ward', '=', 'w.id');
+        if (!empty($location['ward_id'])) {
+            $query = $query->where('w.id', $location['ward_id']);
+        }
+    
+        return $query;
+    }
+    
+    private function applyZoneFilter($zone, $query) {
+        if (!empty($zone)) {
+            $query = $query->where('l.zone', $zone);
+        }    
+        return $query;
+    }
+    
+    private function dateResolver($date, $dateType){
+        switch ($dateType) {
+            case 'days':
+                return Carbon::parse($date)->format('d M, Y');
+                break;
+            case 'months':
+                return Carbon::parse($date)->format('M, Y');
+                break;
+            case 'years':
+                return Carbon::parse($date)->format('Y');
+                break;
+            default:
+                return Carbon::parse($date)->format('d M, Y');
+        }
+    }
+    private function getDateRange($dateRange){
+        if(empty($dateRange)){
+            //$dateRange[0] = Carbon::now()->startOfMonth()->toDateString();
+            //$dateRange[1] = Carbon::now()->endOfMonth()->toDateString();
+            $dateRange[0] = Carbon::parse('1995-01-01')->format('Y-m-d');
+            $dateRange[1] = Carbon::now()->format('Y-m-d');
+        }else{
+            $dateRange[0] = Carbon::parse($dateRange[0])->format('Y-m-d');
+            $dateRange[1] = Carbon::parse($dateRange[1])->format('Y-m-d');
+        }            
+        return $dateRange;
+    }
+
     public function ExecutiveAnalysis(Request $request)
     {
         try {
             $dateRange = $request->input('dateRange');
-            if(empty($dateRange)){
-                //$dateRange[0] = Carbon::now()->startOfMonth()->toDateString();
-                //$dateRange[1] = Carbon::now()->endOfMonth()->toDateString();
-                $dateRange[0] = Carbon::parse('1995-01-01')->format('Y-m-d');
-                $dateRange[1] = Carbon::now()->format('Y-m-d');
-            }else{
-                $dateRange[0] = Carbon::parse($dateRange[0])->format('Y-m-d');
-                $dateRange[1] = Carbon::parse($dateRange[1])->format('Y-m-d');
-            }            
+            $dateRange = $this->getDateRange($dateRange);
+           
             // Counting distinct enrollees who have visits
             // If mode_of_enrolment is in enrolee_visits
             $external_db  = env('EX_DB_DATABASE');
@@ -221,7 +408,7 @@ class VisitController extends Controller
             $totalEnrolleesAll = Enrolee::count();
 
 
-            $EnrolleeByScheme = Enrolee::selectRaw('COUNT(mode_of_enrolment) AS total, mode_of_enrolment')
+            $EnrolleeByScheme = Enrolee::selectRaw("COUNT(mode_of_enrolment) AS total, IF(mode_of_enrolment='huwe','Formal',IF(mode_of_enrolment='Premium','Informal','Others')) AS mode_of_enrolment")
             ->groupBy('mode_of_enrolment')
             ->whereBetween('synced_datetime',$dateRange)
             ->get();
@@ -242,20 +429,21 @@ class VisitController extends Controller
             ->get()->pluck('sex', 'total');
 
             $EnrolleeByZone = DB::select(DB::raw("SELECT z.zone, COUNT(z.zone) as total FROM $external_db.tbl_enrolee e JOIN $external_db.lga on lga.id = e.lga JOIN $external_db.tbl_zones z on z.id = lga.zone GROUP BY z.zone"));
-
-            $EnrolleeByScheme->map(function($item){
-                if($item->mode_of_enrolment == 'huwe'){
-                    $item->mode_of_enrolment = 'BHCPF';
-                    return $item;
+            $schemes = collect([
+                'Informal',
+                'Formal',
+                'TiShip'
+            ]);
+                       
+            $existingSchemes = $EnrolleeByScheme->pluck('mode_of_enrolment')->all();
+            $schemes->each(function ($scheme) use (&$EnrolleeByScheme, $existingSchemes) {
+                if (!in_array($scheme, $existingSchemes)) {                    
+                    $EnrolleeByScheme->push((object)[
+                        'total' => 0,
+                        'mode_of_enrolment' => $scheme,
+                    ]);
                 }
-                if($item->mode_of_enrolment == 'Premium' ){
-                    $item->mode_of_enrolment = 'Informal';
-                    return $item;
-                }
-                return $item;
             });
-
-
 
             $visitsGroupedByFunding = DB::table( $internal_db.'.enrolee_visits')
             ->join($external_db.'.tbl_enrolee', 'enrolee_visits.nicare_id', '=', $external_db.'.tbl_enrolee.enrolment_number')

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class EnroleeVisit extends Model
 {
+    protected $connection = 'mysql';
     use HasFactory, Filterable;
     protected $fillable = [        
         'nicare_id',
@@ -27,6 +28,13 @@ class EnroleeVisit extends Model
     protected $casts = [
         'reporting_month'=>'datetime:F, Y'
     ];
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+
+        $this->setConnection('mysql');
+    }
     public function getLgaNameAttribute(){
         return Lga::find($this?->lga)?->lga;
     }
@@ -60,5 +68,11 @@ class EnroleeVisit extends Model
         return $this->belongsTo(ActivatedUser::class,'activated_user_id');
     }
 
-    protected $appends = ['lga_name', 'ward_name', 'facility', 'name_of_enrolee', 'service'];
+    public function getVisitCountAttribute()
+    {
+        // Count the number of visits with the same nicare_id
+        return self::where('nicare_id', $this->nicare_id)->count();
+    }
+
+    protected $appends = ['lga_name', 'ward_name', 'facility', 'name_of_enrolee', 'service','visit_count'];
 }

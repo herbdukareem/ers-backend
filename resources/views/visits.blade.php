@@ -14,7 +14,7 @@ $facilities = Facility::all();
 
 <div class="w-full mt-4 " id="appRoot2">
     <div class="bg-white rounded  pb-3 border-0 border-transparent border-solid shadow-xl dark:bg-slate-850 dark:shadow-dark-xl rounded-2xl bg-clip-border">
-        <div class="p-3">
+     <!--    <div class="p-3">
             <div class="flex flex-wrap p-3 rounded-lg card justify-between">
                 <div class="w-full md:w-1/6">
                     <label class="block">Filter</label>
@@ -53,10 +53,10 @@ $facilities = Facility::all();
                 </div>
             </div>
             <hr class="gradient-hr">
-        </div>
+        </div> -->
 
     </div>
-
+    
 </div>
 
     <script>
@@ -68,27 +68,12 @@ $facilities = Facility::all();
             data() {
         return {
             // Define data properties to store the fetched data
-            totalEncounters: null,
-            totalEnrollees: null,
-            totalReferrals: null,
-            totalEncountersLastMonth: null,
-            totalEncountersLastYearByQuarter: {},
-            totalEncountersThisYearByQuarter: {},
-            
-            servicesBySex: [],
-            top10ServicesThisYear: [],
-            top10ServicesLastYear: [],
+            encounters: {},       
             // Additional data properties...
         }
     },
-    created() {
-        // Call the API endpoints when the component is created
-        this.fetchTotalEncounters();
-        this.fetchTotalEnrollees();
-        this.fetchTotalReferrals();
-        this.fetchEncountersLastMonth();
-        this.top10Services();
-        this.encountersByQuarter();        
+    created() {        
+        this.fetchTotalEncounters();   
     },
     mounted(){
         window.addEventListener('custom-input-event', this.searchedInput);
@@ -98,29 +83,9 @@ $facilities = Facility::all();
             
         },
         async fetchTotalEncounters() {
-            const response = await fetch('/reports/total-encounters');
-            this.totalEncounters = await response.json();
-        },
-        async fetchTotalEnrollees() {
-            const response = await fetch('/reports/total-enrollees');
-            this.totalEnrollees = await response.json();
-        },
-        async fetchTotalReferrals() {
-            const response = await fetch('/reports/total-referrals');
-         //   this.totalReferrals = await response.json();
-        },
-        async fetchEncountersLastMonth() {
-            const response = await fetch('/reports/encounters-last-month');
-           // this.totalEncountersLastMonth = await response.json();
-        },
-        async encountersByQuarter(){
-            const response = await fetch('reports/encounters-by-quarter');
-           // this.totalEncountersThisYearByQuarter = response.json();
-        },
-        async top10Services(){
-            const response = await fetch('reports/top-10-services');
-            //this.top10ServicesThisYear = response.json();
-        }
+            const response = await fetch('/ecounters');
+            this.encounters = await response.json();
+        },      
     }
         }).mount('#appRoot2')
     </script>

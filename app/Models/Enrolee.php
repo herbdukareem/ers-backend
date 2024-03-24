@@ -42,5 +42,14 @@ class Enrolee extends Model
         return $this->enrolment_number;
     }
 
+    public function getFullNameAttribute(){
+        return $this->first_name +' '+ $this->surname;
+    }
+
+    public function visits()
+    {
+        return $this->hasMany(EnroleeVisit::class, 'enrollment_number', 'nicare_id');
+    }
+
     protected $appends = ['lga_name', 'ward_name', 'facility','nicare_id','name_of_enrolee'];
 }

@@ -17,6 +17,10 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
+    public function index(){
+        return view('login');
+    }
+
     public function login(Request $request)
     {
         $request->validate([
@@ -30,7 +34,7 @@ class LoginController extends Controller
         // Attempt to find the user by their unique identifier and password
         $user = User::where('nicare_code', $request->input($this->username()))
                     ->where('password', $passwordMd5)
-                    ->first();        
+                    ->first();             
         if ($user) {
             // If the user is found, manually log in the user
             Auth::guard('web')->login($user, $request->filled('remember'));
@@ -53,4 +57,14 @@ class LoginController extends Controller
     {
         return 'nicare_code'; // Change this to the actual field you use for logins, e.g., 'email' or 'username'
     }
+
+    public function logout(Request $request)
+    {
+        Auth::guard('web')->logout();
+
+        // Optional: Perform any additional logout related tasks here
+        
+        return redirect('/login');
+    }
+    
 }

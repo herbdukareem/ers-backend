@@ -11,7 +11,7 @@ $facilities = Facility::all();
 @extends('../layouts.app')
 
 @section('content')
-
+<script src="{{asset('components/chartFilter.js')}}"></script>    
 <div class="w-full mt-4 bg-[black] p-5 text-white" style="border-radius: 25px;" id="appRoot2">
     
     <div class="gradient w-50 p-[2px] mb-1 text-center grid md:grid-cols-3 grid-cols-5 mb-5">
@@ -49,7 +49,7 @@ $facilities = Facility::all();
                     </h4>
                 </div>                
                 <div  class="place-self-center">
-                    <span class="place-self-left text-sm text-right">Prosit</span>
+                    <span class="place-self-left text-sm text-right">Cap Proceeds</span>
                     <h4 class="text-right">@{{ formatCurrency(encountersAnalytics?.capitation - medicalAnalytics?.medical_bill_amount)}}
                     <span class="ml-2">(@{{computePerc(encountersAnalytics?.capitation - medicalAnalytics?.medical_bill_amount, encountersAnalytics?.capitation)}})</span>
                     </h4>
@@ -73,28 +73,31 @@ $facilities = Facility::all();
     </div>
     <div class="ggradient my-5"></div>
     <div :key="chartRefresh" class="grid md:grid-cols-3 grid-cols-1 w-full gap-5">
-        <div id="enrolleeByVulnerableGroup" class="chart-container col-span-1  h-[250px] bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand($event, 'enrolleeByVulnerableGroup')"></div>
-        <div id="EnrolleeBySex" class="chart-container col-span-1 h-[250px]  bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand($event, 'EnrolleeBySex')"></div>
-        <div id="enrolleeByZone" class="chart-container col-span-1 h-[250px]  bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand($event, 'enrolleeByZone')"></div>
-        <div id="topAccessedService" class="chart-container col-span-1 h-[250px]  bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand($event, 'topAccessedService')"></div>
-        <div id="EnrolleeByOccupations" class="chart-container col-span-1 h-[250px]  bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand($event, 'EnrolleeByOccupations')"></div>      
-        <div id="medicalsChart" class="chart-container col-span-1 h-[250px]  bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand($event, 'medicalsChart')"></div>  
+        <!-- <div id="enrolleeByVulnerableGroup" class="chart-container col-span-1  h-[250px] bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand('enrolleeByVulnerableGroup')"></div> -->
+        <div id="enrolleeByVulnerableGroupCont" class="speedialer w-full col-span-1 h-[250px] relative overflow-y-hidden" @dblclick="toggleExpand('enrolleeByVulnerableGroupCont')">
+            <div id="enrolleeByVulnerableGroup" v-show="!dataCharts?.enrolleeByVulnerableGroup" :class="!dataCharts?.enrolleeByVulnerableGroup ? 'activechart' : 'activeNot'" class="chart-container absolute h-[inherit] w-full bg-[transparent] transition-all duration-300 ease-in-out"></div>
+            <div id="enrolleeByVulnerableGroup_sub"  v-show="dataCharts?.enrolleeByVulnerableGroup" :class="dataCharts?.enrolleeByVulnerableGroup ? 'activechart' : 'activeNot'" class="chart-container absolute h-[inherit] w-full bg-[transparent] transition-all duration-300 ease-in-out"></div>
+            <p-speeddial :model="[
+                { label: 'Refresh', icon: 'pi pi-refresh', command: () => { dataCharts.enrolleeByVulnerableGroup = false } },
+                { label: 'Expand', icon: 'pi pi-window-maximize', command: () => { toggleExpand('enrolleeByVulnerableGroupCont') } }
+            ]" :radius="80" direction="up" :style="{ left: 0, bottom: 0 }"></p-speeddial>
+        </div>
+
+        <div id="EnrolleeBySex" class="chart-container col-span-1 h-[250px]  bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand('EnrolleeBySex')"></div>
+        <div id="enrolleeByZone" class="chart-container col-span-1 h-[250px]  bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand('enrolleeByZone')"></div>
+        <div id="topAccessedServiceCont"  class="speedialer w-full col-span-1 h-[250px] relative overflow-y-hidden" @dblclick="toggleExpand('topAccessedServiceCont')">
+                <div v-show="!dataCharts?.topAccessedService" :class="!dataCharts?.topAccessedService?'activechart': 'activeNot'" id="topAccessedService" class="chart-container absolute h-[inherit] w-full  bg-[transparent] transition-all duration-300 ease-in-out "  ></div>
+                <div v-show="dataCharts?.topAccessedService" :class="dataCharts?.topAccessedService?'activechart': 'activeNot'" id="topAccessedService_sub" class="chart-container absolute h-[inherit] w-full  bg-[transparent] transition-all duration-300 ease-in-out "  ></div>
+                <p-speeddial :model="[{label: 'Refresh',icon: 'pi pi-refresh',command: ()=>{dataCharts.topAccessedService = false} },{label: 'Expand',icon: 'pi pi-window-maximize',command: () => {toggleExpand('topAccessedServiceCont')}}]" 
+                :radius="80"  direction="up" :style="{ left: 0, bottom: 0 }" > </p-speeddial>
+        </div>
+        <div id="EnrolleeByOccupations" class="chart-container col-span-1 h-[250px]  bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand('EnrolleeByOccupations')"></div>      
+        <div id="medicalsChart" class="chart-container col-span-1 h-[250px]  bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand('medicalsChart')"></div>  
     </div>    
 
     <transition name="fade">
-    <div v-if="visible" class="fixed inset-0 z-[100] overflow-y-auto h-full w-full">        
-        <div class="fixed inset-0 z-[108] bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full"  @click="visible=false"></div>
-      <div class="relative top-20 z-[109] mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3 text-center text-gray-700">
-          <h3 class="text-lg leading-6 font-medium text-gray-700" v-if="title">tailwindcss</h3>
-          <div class="mt-2 px-7 py-3">
-            ls jeowjweiojweoie woiwjoiwejoeiweoijio
-          </div>
-          <div class="items-center px-4 py-3">
-            <slot name="actions"></slot>
-          </div>
-        </div>
-      </div>
+    <div v-if="visible">        
+        <v-chartfilter @on-selected="subChartReolver" :lgas="lgas" :wards="wards" @close="visible=false"></v-chartfilter>
     </div>
   </transition>
   <transition name="fade">
@@ -112,16 +115,26 @@ $facilities = Facility::all();
     } = Vue
 
     const app = createApp({
+        components:{
+            'v-dropdown': DropdownWithFilter,
+            'v-chartfilter': ChartFilter
+        },
         data() {
             return {
                 barsLength:100,
                 requestResolver:0,
                 requestResolved:true,
                 isFullScreen:false,
-                prefix: '<?= env('PREFIX') ?>',
+                prefix: '<?=config('constant.prefix')?>',
                 loading:true,
                 visible:false,
                 dateRange: [],
+                dateType:'months',
+                dataCharts:{
+
+                },
+                lgas: <?= json_encode($lgas) ?>,
+                wards:<?= json_encode($wards) ?>,
                 // Define data properties to store the fetched data
                 encountersAnalytics: null,
                 totalEnrollees: null,
@@ -129,18 +142,27 @@ $facilities = Facility::all();
                 totalEncountersLastMonth: null,
                 totalEncountersLastYearByQuarter: {},
                 totalEncountersThisYearByQuarter: {},
-
-                servicesBySex: [],
-                top10ServicesThisYear: [],
-                top10ServicesLastYear: [],
+                servicesBySex: [],                
                 chartRefresh: 0,
+                chartRefreshSub:0,
                 medicalAnalytics:{},
+                subchartvalue:'',
+                selected_chartID:'',
+                filterOptionvValue:'Date Type',
+                filterOptions:['Date Type', 'Location', 'Zone'],
+                filter:{
+                    location:{lga_id:null, ward_id:null},
+                    zone:null,
+                    dateType:null,
+                },
                 filters: {
                     dateRange: 'Inception',
                     search: ''
-                }
-                // Additional data properties...
+                },
+                swiper:null,
+                
             }
+                // Additional data properties...            
         },
         created() {
             // Call the API endpoints when the component is created
@@ -150,20 +172,28 @@ $facilities = Facility::all();
                this.fetchEncountersLastMonth();
                this.top10Services();
                this.encountersByQuarter();         */
+            
         },
-        mounted() {
+        mounted() {            
             window.addEventListener('custom-input-event', this.searchedInput);
             window.addEventListener('custom-date-event', this.searchedDate);
         },
-        methods: {
-            toggleExpand(event, chartId) {                
+        methods: {            
+            async customFetch(route, filter){
+                this.chartRefreshSub += 1
+                this.loading = true
+                const response = await axios.post(this.prefix+'/'+route,filter);
+                this.loading = false
+                return response.data
+            },
+            toggleExpand(chartId) {                
                 if (this.expandedChartId === chartId) {
                     this.expandedChartId = null;
                 } else {
                     this.expandedChartId = chartId;
                 }
                 
-                const chartContainer = event.currentTarget;                
+                const chartContainer = document.getElementById(chartId)
                 if (this.expandedChartId) {
                     chartContainer.style.position = 'fixed';
                     chartContainer.style.left = '0';
@@ -182,7 +212,7 @@ $facilities = Facility::all();
                     chartContainer.style.backgroundColor = '#000';
                 }                          
             },
-            plotChart(chartId, chartType, titleText, categories, seriesName, data, isDoughnut = false) {
+            plotChart(chartId, chartType, titleText, categories, seriesName, data, isDoughnut = false, rotate=0) {
                 try {
                     Highcharts.chart(chartId, {
                         chart: {
@@ -232,7 +262,8 @@ $facilities = Facility::all();
                             },
                             showInLegend: true,
                             innerSize: isDoughnut ? '50%' : undefined,
-                            series:this.dataLabels(chartType)
+                            series:this.dataLabels(chartType,chartId, rotate),                            
+                          
                         },
                         series: [{
                             name: seriesName,
@@ -256,7 +287,7 @@ $facilities = Facility::all();
 
                 }
             },
-            plotLineChart(chartId, categories, capTotalAmountName, capTotalAmountData, totalAmountName, totalAmountData, titleG,subtitle) {
+            plotLineChart(chartId, categories, capTotalAmountName, capTotalAmountData, totalAmountName, totalAmountData, titleG,subtitle, rotate =0) {
                     Highcharts.chart(chartId, {
                         chart: {
                             zoomType: 'xy',
@@ -297,6 +328,10 @@ $facilities = Facility::all();
                             line: {
                                 dataLabels: { enabled: true },
                                 enableMouseTracking: true
+                            },
+                            series: {
+                                rotation: rotate,
+                                enabled: true,                                
                             }
                         },
                         tooltip: {
@@ -334,7 +369,7 @@ $facilities = Facility::all();
                             }
                         }]
                     });
-                },
+            },            
             searchedDate(e) {                
                 if(e.detail.value){
                     this.filters.dateRange = e.detail.value
@@ -361,7 +396,7 @@ $facilities = Facility::all();
                 }
                 return undefined
             },        
-            dataLabels(type){
+            dataLabels(type, chartId="default", rotate=-90){
                 if(type == 'pie'){
                     return {
                             allowPointSelect: true,
@@ -380,14 +415,69 @@ $facilities = Facility::all();
                     return {
                             borderWidth: 0,
                             dataLabels: {
-                                rotation: -90,
+                                rotation: rotate,
                                 enabled: true,                                
                             }
                         }
+                }else{
+                    return {
+                        events: {
+                                click: (event) =>{
+                                    this.visible = true;
+                                    this.subchartvalue = event.target.point.category  
+                                    this.selected_chartID = chartId;                                                                      
+                                }
+                            },
+                            dataLabels: {
+                                rotation: rotate,
+                                enabled: true,                                
+                            }
+                    }
                 }
-                else{
-                    return undefined
+            },            
+            async subChartReolver(filters){    
+                this.visible = false                            
+                const filter = {
+                        value :this.subchartvalue,
+                        dateRange:this.dateRange,
+                        type:this.filters.type,
+                        ...filters
+                        /* dateType:this.dateType */
+
                 }
+                let chartName = this.subchartvalue;
+
+                if (filters.location && filters.location.lga && filters.location.lga.lga) {
+                    chartName += ' in <span class="capitalize">' + filters.location.lga.lga.toLowerCase()+'</span>';
+
+                    if (filters.location.ward && filters.location.ward.ward) {
+                        chartName += ' of <span class="capitalize">' + filters.location.ward.ward.toLowerCase()+'</span>';
+                    }
+                } else if (filters && filters.zone) {
+                    chartName += ' by Zone';
+                }
+
+                if(this.selected_chartID == 'topAccessedService'){
+                    const response = await this.customFetch('top_accessed_services',filter)                                        
+                    const categories = response.map(item => item.name);
+                    const data = response.map(item => item.total);                    
+                    this.plotChart(this.selected_chartID+'_sub', 'area',chartName, categories, 'Total Cases', data);                                        
+                    this.dataCharts[this.selected_chartID] = true
+                }
+                chartName = "Number of "+ chartName
+                if(this.selected_chartID == 'enrolleeByVulnerableGroup'){
+                    const response = await this.customFetch('enrollee_by_category',filter)                                        
+                    const categories = response.map(item => item.name);
+                    const data = response.map(item => item.total);                    
+                    this.plotChart(this.selected_chartID+'_sub', 'area',chartName, categories, 'Values', data);                                        
+                    this.dataCharts[this.selected_chartID] = true
+                }
+            },
+            handleOverlayHide(value, type) {
+                //this.dateType = dateType
+                this.filter[type] = value
+                this.subChartReolver(type)
+                this.visible=false
             },
             async fetchTotalEncounters(filters={}) {
                 this.chartRefresh += 1
@@ -416,7 +506,7 @@ $facilities = Facility::all();
                     const capTotalAmountData = this.medicalAnalytics.medicals.map(item => parseInt(item.cap_total_amount));
                     const totalAmountData = this.medicalAnalytics.medicals.map(item => item.total_medicalbill_amount);
 
-                    this.plotLineChart('medicalsChart', categories, 'CAP Total Amount', capTotalAmountData, 'Total Medical Bill', totalAmountData, "Medical Bills By Months","Prosit: ₦"+  (this.encountersAnalytics.capitation - this.medicalAnalytics.medical_bill_amount));
+                    this.plotLineChart('medicalsChart', categories, 'CAP Total Amount', capTotalAmountData, 'Total Medical Bill', totalAmountData, "Medical Bills By Months","Cap Proceeds: ₦"+  (this.encountersAnalytics.capitation - this.medicalAnalytics.medical_bill_amount));
                 } catch (e) {
                     console.log(e,4444)
                 }
@@ -424,9 +514,9 @@ $facilities = Facility::all();
             replotBars(){
                     const Okeys = Object.keys(this.encountersAnalytics.occupations).slice(0, this.barsLength);
                     const Ovalues = Object.values(this.encountersAnalytics.occupations).slice(0,this.barsLength);
-                    this.plotChart('EnrolleeByOccupations', 'column', 'Enrollee By Occupations', Okeys, 'Occupations', Ovalues);                    
+                    this.plotChart('EnrolleeByOccupations', 'column', 'Enrollee By Occupations', Okeys, 'Occupations', Ovalues,false,-90);                    
                     this.plotChart('topAccessedService', 'bar', 'Top Accessed Services', Object.keys(this.encountersAnalytics.top_accessed), 'Services', Object.values(this.encountersAnalytics.top_accessed));
-                    this.plotChart('enrolleeByVulnerableGroup', 'bar', 'Enrollee Vulnerable Group', Object.keys(this.encountersAnalytics.vulnerability_status), 'Vunerables', Object.values(this.encountersAnalytics.vulnerability_status));
+                    this.plotChart('enrolleeByVulnerableGroup', 'bar', 'Number of Enrollee By Category', Object.keys(this.encountersAnalytics.vulnerability_status), 'Vunerables', Object.values(this.encountersAnalytics.vulnerability_status));
             },
             formatCurrency(number, locale = 'en-US', options = {}) {
                 return '₦'+ this.formatNumber(number)
@@ -436,8 +526,11 @@ $facilities = Facility::all();
             },
             computePerc(val, total){
                 const output = (val/total)* 100
-                    return output?.toFixed(1) + '%';
-            },
+                if(isNaN(output)){
+                    return '0%'
+                }
+                return output?.toFixed(1) + '%';
+            },                    
             toggleFullscreen(elementId) {
                 const elem = document.getElementById(elementId);
                 const isFullscreen = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
@@ -463,7 +556,7 @@ $facilities = Facility::all();
                     document.msExitFullscreen();
                     }
                 }
-                }
+            }
 
         },
         watch:{
@@ -490,7 +583,12 @@ $facilities = Facility::all();
 
         
     })
- 
+    app.use(primevue.config.default);
+    app.component('p-speeddial', primevue.speeddial); 
+    app.component('p-dialog', primevue.dialog); 
+    app.component('p-dropdown', primevue.dropdown); 
+    app.component('p-selectbutton', primevue.selectbutton);        
+    
     app.mount('#appRoot2')
 </script>
 <style>
@@ -506,25 +604,66 @@ $facilities = Facility::all();
         /* Additional styling */
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         /* Optional: adds a subtle shadow */
+        transition: left 0.5s ease-in-out, opacity 0.5s ease;
+    }
+    
+
+    .activeNot{
+        left: -100%; /* Start from the left */
+        opacity: 0; /* Start faded out */
+    }
+
+    .activechart {
+        left: 0; /* Slide in */
+        opacity: 1; /* Fade in */
     }
     .fade-enter-active, .fade-leave-active {
-  transition: opacity 0.5s;
+        transition: opacity 0.5s;
+    }
+
+.speedialer:hover .p-speeddial{
+    transform: translateY(0px);
+    opacity: 1; 
 }
-.cgradient{
-  height: 0.5px;
-  width: 100%;
-  background-color: #fff; /* For browsers that do not support gradients */
-  background-image: linear-gradient(to right, #000, #fff, #000);
+.p-speeddial{
+    transition: left 0.5s ease-in-out, opacity 0.5s ease;
+    transform: translateY(70px);
+    opacity: 0;
 }
-.ggradient{
-  height: 1px;
-  width: 100%;
-  background-color: red; /* For browsers that do not support gradients */
-  background-image: linear-gradient(to right, #1BFFFF, #2E3192, #1BFFFF);
+.p-speeddial button.p-speeddial-button {
+    
+     /* Adjust the color to your preference */
+    cursor: pointer;
 }
-.gradient{
-    background-color: red; /* For browsers that do not support gradients */
-    background-image: linear-gradient(to right, #000, #2E3192, #000);
+.p-speeddial button.p-speeddial-button:focus{
+    outline: 0;
 }
+.p-speeddial .p-speeddial-item {    
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+}
+
+/*
+  Enter and leave animations can use different
+  durations and timing functions.
+*/
+.slide-fade-enter-active, .slide-fade-leave-active {
+  transition: all 0.3s; 
+}
+
+.slide-fade-enter-from {
+  transform: translateX(-20%); /* Start off-screen to the left */
+  transition-delay: 0.3s;
+  opacity: 0;
+}
+
+.slide-fade-leave-to {
+  transform: translateX(20%); /* Exit off-screen to the right */
+  transition-delay: 0.3s;
+  opacity: 0; /* Optionally fade out as it slides away */
+}
+
+
 </style>
 @endsection

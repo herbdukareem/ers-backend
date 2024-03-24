@@ -33,8 +33,22 @@ $facilities = Facility::all();
     </div>
     <div :key="chartRefresh" class="grid md:grid-cols-3 grid-cols-1 w-full gap-5">
         <div id="topAccessedChart" class="chart-container col-span-1  h-[250px] bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand($event, 'topAccessedChart')"></div>
-        <div id="visitsBySexChart" class="chart-container col-span-1 h-[250px]  bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand($event, 'visitsBySexChart')"></div>
-        <div id="visitsByModeOfEnrolmentChart" class="chart-container col-span-1 h-[250px]  bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand($event, 'visitsByModeOfEnrolmentChart')"></div>
+        <div class="md:col-span-2 col-span-1 grid md:grid-cols-3 grid-cols-1 w-full gap-5">
+            <div id="visitsBySexChart" class="chart-container col-span-1 h-[250px]  bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand($event, 'visitsBySexChart')"></div>
+            <div id="visitsByModeOfEnrolmentChart" class="chart-container col-span-1 h-[250px]  bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand($event, 'visitsByModeOfEnrolmentChart')"></div>
+            <div id="latestFacilityReport" class="chart-container col-span-1 h-[250px] px-3 pt-1 pb-10  bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand($event, 'latestFacilityReport')">
+                <h3 class="text-white text-center text-md"><b>Facility Data: Newest Entries</b></h3>
+                <ul class="h-[100%] overflow-y-auto">
+                    <li class="flex justify-between bgradient cursor-pointer hover:bg-white/20" v-for="record in  encountersAnalytics?.newest_facility_entries">
+                        <span>
+                            <p>@{{record.facility}}</p>
+                            <p>@{{record.since_added}}</p>
+                        </span>
+                        <span class="p-1">@{{record.total}}</span>
+                    </li>                            
+                </ul>
+            </div>
+        </div>
         <div id="topfacilityAccessed" class="chart-container col-span-1 h-[250px]  bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand($event, 'topfacilityAccessed')"></div>
         <div id="topWardAccessed" class="chart-container col-span-1 h-[250px]  bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand($event, 'topWardAccessed')"></div>      
         <div id="medicalsChart" class="chart-container col-span-1 h-[250px]  bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand($event, 'medicalsChart')"></div>  
@@ -73,7 +87,7 @@ $facilities = Facility::all();
     const app = createApp({
         data() {
             return {
-                prefix: '<?= env('PREFIX') ?>',
+                prefix: '<?= config('constant.prefix') ?>',
                 loading:true,
                 visible:false,
                 dateRange: [],
@@ -137,7 +151,7 @@ $facilities = Facility::all();
                     chartContainer.style.backgroundColor = '#000';
                 }                          
             },
-            plotChart(chartId, chartType, titleText, categories, seriesName, data, isDoughnut = false) {
+            plotChart(chartId, chartType, titleText, categories, seriesName, data, isDoughnut = false, rotate=0) {
                 try {
                     Highcharts.chart(chartId, {
                         chart: {
@@ -145,12 +159,14 @@ $facilities = Facility::all();
                             plotBackgroundColor: null,
                             backgroundColor: null,
                             plotBorderWidth: null,
-                            plotShadow: false
+                            plotShadow: false,
+                            options3d:this.options3d(chartType)
                         },
                         title: {
                             text: titleText,
                             style: {
-                                color: '#FFFFFF'
+                                color: '#FFFFFF',
+                                fontSize:'1em'
                             }
                         },
                         xAxis: {
@@ -185,6 +201,8 @@ $facilities = Facility::all();
                             },
                             showInLegend: true,
                             innerSize: isDoughnut ? '50%' : undefined,
+                            series:this.dataLabels(chartType,chartId, rotate),                            
+                          
                         },
                         series: [{
                             name: seriesName,
@@ -208,7 +226,7 @@ $facilities = Facility::all();
 
                 }
             },
-            plotLineChart(chartId, categories, capTotalAmountName, capTotalAmountData, totalAmountName, totalAmountData, titleG,subtitle) {
+            plotLineChart(chartId, categories, capTotalAmountName, capTotalAmountData, totalAmountName, totalAmountData, titleG,subtitle, rotate =0) {
                     Highcharts.chart(chartId, {
                         chart: {
                             zoomType: 'xy',
@@ -249,6 +267,10 @@ $facilities = Facility::all();
                             line: {
                                 dataLabels: { enabled: true },
                                 enableMouseTracking: true
+                            },
+                            series: {
+                                rotation: rotate,
+                                enabled: true,                                
                             }
                         },
                         tooltip: {
@@ -286,30 +308,160 @@ $facilities = Facility::all();
                             }
                         }]
                     });
-                },
-            searchedDate(e) {
-       
+            }, 
+            searchedDate(e) {    
                 this.filters.dateRange = e.detail.value
                 this.fetchTotalEncounters()
             },
+            options3d(type){
+                if(type == 'pie'){
+                    return { 
+                        enabled: true,
+                        alpha: 45,
+                        beta: 0
+                    }
+                }
+                return undefined
+            }, 
+            dataLabels(type, chartId="default", rotate=-90){
+                if(type == 'pie'){
+                    return {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            depth: 35,
+                            dataLabels: 
+                            [
+                                { enabled: true, distance: 20}, 
+                                { enabled: true, distance: -40, format: '{point.percentage:.1f}%', 
+                                    style: { fontSize: '1.2em', textOutline: 'none', opacity: 0.7 },
+                                    filter: { operator: '>', property: 'percentage', value: 10 }
+                                }
+                            ]
+                        }
+                }else if(type=='column'){
+                    return {
+                            borderWidth: 0,
+                            dataLabels: {
+                                rotation: rotate,
+                                enabled: true,                                
+                            }
+                        }
+                }else{
+                    return {
+                        events: {
+                                click: (event) =>{
+                                    this.visible = true;
+                                    this.subchartvalue = event.target.point.category  
+                                    this.selected_chartID = chartId;                                                                      
+                                }
+                            },
+                            dataLabels: {
+                                rotation: rotate,
+                                enabled: true,                                
+                            }
+                    }
+                }
+            }, 
+            async subChartReolver(filters){    
+                this.visible = false                            
+                const filter = {
+                        value :this.subchartvalue,
+                        dateRange:this.dateRange,
+                        type:this.filters.type,
+                        ...filters
+                        /* dateType:this.dateType */
+
+                }
+                let chartName = this.subchartvalue;
+
+                if (filters.location && filters.location.lga && filters.location.lga.lga) {
+                    chartName += ' in <span class="capitalize">' + filters.location.lga.lga.toLowerCase()+'</span>';
+
+                    if (filters.location.ward && filters.location.ward.ward) {
+                        chartName += ' of <span class="capitalize">' + filters.location.ward.ward.toLowerCase()+'</span>';
+                    }
+                } else if (filters && filters.zone) {
+                    chartName += ' by Zone';
+                }
+
+                if(this.selected_chartID == 'topAccessedService'){
+                    const response = await this.customFetch('top_accessed_services',filter)                                        
+                    const categories = response.map(item => item.name);
+                    const data = response.map(item => item.total);                    
+                    this.plotChart(this.selected_chartID+'_sub', 'area',chartName, categories, 'Total Cases', data);                                        
+                    this.dataCharts[this.selected_chartID] = true
+                }
+                chartName = "Number of "+ chartName
+                if(this.selected_chartID == 'enrolleeByVulnerableGroup'){
+                    const response = await this.customFetch('enrollee_by_category',filter)                                        
+                    const categories = response.map(item => item.name);
+                    const data = response.map(item => item.total);                    
+                    this.plotChart(this.selected_chartID+'_sub', 'area',chartName, categories, 'Values', data);                                        
+                    this.dataCharts[this.selected_chartID] = true
+                }
+            },
+            handleOverlayHide(value, type) {
+                //this.dateType = dateType
+                this.filter[type] = value
+                this.subChartReolver(type)
+                this.visible=false
+            },
+            formatCurrency(number, locale = 'en-US', options = {}) {
+                return '₦'+ this.formatNumber(number)
+            },
+            formatNumber(number, locale = 'en-US', options = {}) {
+                return new Intl.NumberFormat(locale, options).format(number);
+            },
+            toggleFullscreen(elementId) {
+                const elem = document.getElementById(elementId);
+                const isFullscreen = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+                this.isFullScreen = !this.isFullScreen
+                if (!isFullscreen) { // Enter fullscreen
+                    if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                    } else if (elem.mozRequestFullScreen) {
+                    elem.mozRequestFullScreen();
+                    } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                    } else if (elem.msRequestFullscreen) {
+                    elem.msRequestFullscreen();
+                    }
+                } else { // Exit fullscreen
+                    if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                    } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                    } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                    } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                    }
+                }
+            },            
+            computePerc(val, total){
+                const output = (val/total)* 100
+                if(isNaN(output)){
+                    return '0%'
+                }
+                return output?.toFixed(1) + '%';
+            },   
             searchedInput(e) {
                 setTimeout(() => {
                     this.filters.search = e.details.value
                     this.fetchTotalEncounters()
                 }, 2500)
             },
-            async fetchMedical(){
-                
-               
+            async fetchMedical(){                               
             },
             async fetchTotalEncounters() {
                 this.chartRefresh += 1
                 this.loading = true
-                const response = await axios.post(this.prefix+'/reports/analytics', this.filters);
+                const response = await axios.post(this.prefix+'/ers/reports/analytics', this.filters);
                 this.encountersAnalytics = response.data
                 this.loading = false
                 try {
                     //
+                    
                     this.plotChart('topWardAccessed', 'bar', 'Top Visits By Ward', Object.keys(this.encountersAnalytics.top_wards), 'Services', Object.values(this.encountersAnalytics.top_wards));
                     this.plotChart('topfacilityAccessed', 'bar', 'Top Visits By Facility', Object.keys(this.encountersAnalytics.top_facility), 'Services', Object.values(this.encountersAnalytics.top_facility));
                     this.plotChart('topAccessedChart', 'bar', 'Top Accessed Services', Object.keys(this.encountersAnalytics.top_accessed), 'Services', Object.values(this.encountersAnalytics.top_accessed));

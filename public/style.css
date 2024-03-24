@@ -1,0 +1,104 @@
+
+/* Base styling for the SpeedDial */
+:root {
+    --speeddial-background: #5bcaff; /* Main button background color */
+    --speeddial-item-background: #ffffff; /* Item button background color */
+    --speeddial-text-color: #ffffff; /* Main button text/icon color */
+    --speeddial-item-text-color: #333333; /* Item button text/icon color */
+    --speeddial-border-color: #dddddd; /* Item button border color */
+}
+
+/* Main button */
+.p-speeddial .p-speeddial-button {
+    height: 35px;
+    width: 35px;
+    /* margin-left: 10px; */
+}
+
+.p-speeddial .p-speeddial-button:hover {
+    
+}
+
+/* Item buttons */
+.p-speeddial .p-speeddial-item {
+    height: 35px;
+    width: 35px;
+    border-radius: 50%;
+}
+
+.p-speeddial .p-speeddial-item:hover {
+    background-color: #333333;
+    color: white;
+}
+
+/* Tooltip (if used) */
+.p-speeddial .p-speeddial-tooltip {
+    
+}
+
+
+.p-selectbutton {    
+    width: 100%;  
+    display: flex; /* Use Flexbox */
+    justify-content: space-around; /* Distribute space evenly around the items */
+
+}
+
+.p-selectbutton::before {
+
+}
+.p-selectbutton .p-button:focus {
+    box-shadow: none;
+}
+.p-selectbutton .p-button {
+    flex: 1; 
+    width: calc(100% / 3); /* Adjust based on the number of options */
+    padding:7px;
+    font-size: 1em !important;
+}
+
+.p-selectbutton .p-button:not(.p-disabled):hover {
+   
+}
+
+.p-selectbutton .p-button.p-highlight {
+   
+    
+}
+.text-left{
+text-align: left !important;
+}  
+
+.cgradient{
+    height: 0.5px;
+    width: 100%;
+    background-color: #fff; /* For browsers that do not support gradients */
+    background-image: linear-gradient(to right, #000, #fff, #000);
+  }
+  .ggradient{
+    height: 1px;
+    width: 100%;
+    background-color: red; /* For browsers that do not support gradients */
+    background-image: linear-gradient(to right, #1BFFFF, #2E3192, #1BFFFF);
+  }
+  .bgradient{
+      position: relative;
+      padding: 7px;
+  }
+  .bgradient::before {
+    content: "";
+    position: absolute;
+    display: block;
+    height: 1px;
+    bottom: -2px;
+    left: 0px;
+    width: 100%;
+    background-color: red; /* For browsers that do not support gradients */
+    background-image: linear-gradient(to right, #1BFFFF, #2E3192, #1BFFFF);
+  }
+  
+
+  .gradient{
+      background-color: red; /* For browsers that do not support gradients */
+      background-image: linear-gradient(to right, #000, #2E3192, #000);
+  }
