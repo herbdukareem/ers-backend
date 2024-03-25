@@ -8,7 +8,7 @@ use App\Models\Capitation;
 use App\Models\CapitationGroup;
 use App\Models\Enrolee;
 use App\Models\EnroleeVisit;
-use App\Models\LGA;
+use App\Models\Lga;
 use App\Models\MedicalBill;
 use Carbon\Carbon;
 //use App\Http\Controllers\Controller;
@@ -192,7 +192,7 @@ class VisitController extends Controller
     }
 
     public function lgas(){
-        $lgas = LGA::with('wards')->get();
+        $lgas = Lga::with('wards')->get();
         return response()->json([$lgas], 200);
     }
 }

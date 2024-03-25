@@ -4,7 +4,7 @@ namespace App\Http\Livewire;
 use App\Exports\EnroleeVisit as ExportsEnroleeVisit;
 use App\Models\EnroleeVisit;
 use App\Models\Facility;
-use App\Models\LGA;
+use App\Models\Lga;
 use App\Models\Ward;
 use Carbon\Carbon;
 use Livewire\Component;
@@ -33,7 +33,7 @@ class Visits extends Component
         $enroleeVisits = EnroleeVisit::query();
         $enroleeVisitsData = EnroleeVisit::query();
         $report = EnroleeVisit::query();
-        $lgas = LGA::all();
+        $lgas = Lga::all();
 
         $this->applyDateFilter($enroleeVisits, $enroleeVisitsData, $report);
         $wards =  $this->getFilteredWards($enroleeVisits, $enroleeVisitsData, $report);   

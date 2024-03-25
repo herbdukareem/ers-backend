@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\Facility;
-use App\Models\LGA;
+use App\Models\Lga;
 use App\Models\Ward;
 
 $lgas  = LGA::all();
