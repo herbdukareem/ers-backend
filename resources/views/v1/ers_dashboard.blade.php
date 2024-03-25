@@ -55,19 +55,8 @@ $facilities = Facility::all();
     </div>    
 
     <transition name="fade">
-    <div v-if="visible" class="fixed inset-0 z-[100] overflow-y-auto h-full w-full">        
-        <div class="fixed inset-0 z-[108] bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full"  @click="visible=false"></div>
-      <div class="relative top-20 z-[109] mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3 text-center text-gray-700">
-          <h3 class="text-lg leading-6 font-medium text-gray-700" v-if="title">tailwindcss</h3>
-          <div class="mt-2 px-7 py-3">
-            ls jeowjweiojweoie woiwjoiwejoeiweoijio
-          </div>
-          <div class="items-center px-4 py-3">
-            <slot name="actions"></slot>
-          </div>
-        </div>
-      </div>
+    <div v-if="visible">        
+        <v-chartfilter @on-selected="subChartReolver" :lgas="lgas" :wards="wards" @close="visible=false"></v-chartfilter>
     </div>
   </transition>
   <transition name="fade">
@@ -349,11 +338,11 @@ $facilities = Facility::all();
                 }else{
                     return {
                         events: {
-                                click: (event) =>{
+                            /*     click: (event) =>{
                                     this.visible = true;
                                     this.subchartvalue = event.target.point.category  
                                     this.selected_chartID = chartId;                                                                      
-                                }
+                                } */
                             },
                             dataLabels: {
                                 rotation: rotate,
