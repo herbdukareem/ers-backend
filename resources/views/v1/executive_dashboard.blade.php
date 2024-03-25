@@ -4,7 +4,7 @@ use App\Models\Facility;
 use App\Models\Lga;
 use App\Models\Ward;
 
-$lgas  = LGA::all();
+$lgas  = Lga::all();
 $wards = Ward::all();
 $facilities = Facility::all();
 ?>
