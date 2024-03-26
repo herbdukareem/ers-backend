@@ -424,7 +424,7 @@ $routesWithPrimeVue = [
             font-family: 'Nunito', sans-serif;
         }
         .trax {
-            transform: translateX(-310px) !important;
+            transform: translateX(-450px) !important;
         }
         
 .fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {

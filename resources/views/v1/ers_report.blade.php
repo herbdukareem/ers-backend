@@ -14,11 +14,14 @@ $facilities = Facility::all();
 
 <div class="w-full mt-4  p-5 text-white" style="border-radius: 25px;" id="appRoot2">
 
-        <p-dataTable 
-                :globalFilterFields="['nicare_id','full_name','service']"
-                stateStorage="session" stateKey="dt-state-demo-session" paginator :rows="7" filterDisplay="menu"
-                row-group-mode="rowspan" group-rows-by="name_of_enrolee" sort-mode="single"                
-                :value="visits.data"  :sort-order="1"  :scrollable="true" scroll-height="400px"  table-style="min-width: 50rem">                            
+        <p-dataTable                 
+                :totalRecords="visits?.total" lazy paginator :first="visits?.from"                
+                :loading="loading"
+                state-storage="session" state-key="dt-state-demo-session"  :rows="100" filter-display="menu"
+                paginator-template="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+                current-page-report-template="{first} to {last} of {totalRecords}"
+                row-group-mode="rowspan" group-rows-by="name_of_enrolee" sort-mode="single"   :pt="{root:{class:'bg-white'}}"
+                :value="visits.data"  :sort-order="1"  :scrollable="true" scroll-height="400px"  table-style="min-width: 50rem;">                            
                 <template #groupheader="slotProps">
                 <div class="flex align-items-center gap-2">                
                     <i class="fas fa-user-circle w-[35px] h-[35px]"></i>
@@ -103,7 +106,9 @@ $facilities = Facility::all();
 
             },
             async fetchEncounters(filters){
+                this.loading = true;
                 const response = await axios.post(this.prefix+'/ecounters',filters);
+                this.loading = false;
                 this.visits = response.data
             },
             searchedDate(e) {
