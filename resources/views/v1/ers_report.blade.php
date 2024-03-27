@@ -68,6 +68,7 @@ $facilities = Facility::all();
                 loading:true,
                 visible:false,
                 visits:{data:[]},
+                setTimeoutInput:false,
                 dateRange: [],
              /*    filter: {
                     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -117,13 +118,13 @@ $facilities = Facility::all();
             searchedDate(e) {
        
                 this.filters.dateRange = e.detail.value
-                this.fetchTotalEncounters()
+                this.fetchEncounters(this.filters)
             },
-            searchedInput(e) {
+            searchedInput(e) {                
                 setTimeout(() => {
-                    this.filters.search = e.details.value
-                    this.fetchTotalEncounters()
-                }, 2500)
+                    this.filters.search = e.detail.value
+                    this.fetchEncounters(this.filters)                
+                }, 3000)                
             },        
        
         }

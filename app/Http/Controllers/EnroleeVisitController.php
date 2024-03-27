@@ -116,7 +116,8 @@ class EnroleeVisitController extends Controller
 
     public function index(Request $request)
     {           
-      /*   $external_db  = env('EX_DB_DATABASE');
+        $external_db  = env('EX_DB_DATABASE');
+      /*
         $internal_db  = env('DB_DATABASE');
         $enroleeQuery = DB::table($external_db.'.tbl_enrolee as enrolee')
         ->selectRaw(
@@ -189,7 +190,19 @@ class EnroleeVisitController extends Controller
             $dateRange[0] = Carbon::parse($dateRange[0])->format('Y-m-d');
             $dateRange[1] = Carbon::parse($dateRange[1])->format('Y-m-d');
         }     
-        $enroleeVisits = EnroleeVisit::whereBetween('date_of_visit',$dateRange)->paginate(50);
+        if(!empty($request->input("search"))){
+            $search = $request->input("search");
+            $enroleeVisits = EnroleeVisit::join($external_db.'.tbl_providers as f', 'f.id','enrolee_visits.facility_id')
+                    ->join($external_db.'.lga as l', 'l.id','enrolee_visits.lga')
+                    ->join($external_db.'.ward as w', 'w.id','enrolee_visits.ward')
+                    ->join($external_db.'.tbl_programme_case as p', 'p.id','enrolee_visits.service_accessed')
+                    ->join($external_db.'.tbl_enrolee as e', 'e.enrolment_number','enrolee_visits.nicare_id')
+                    ->selectRaw("enrolee_visits.*")                    
+                    ->whereRaw("e.first_name like '%$search%' OR e.surname like '%$search%' OR f.hcpname like '$search' OR p.case_name LIKE '%$search%' OR l.lga = '$search' OR w.ward LIKE '$search'     ")
+                    ->whereBetween('date_of_visit',$dateRange)->paginate(50);
+        }else{
+            $enroleeVisits = EnroleeVisit::whereBetween('date_of_visit',$dateRange)->paginate(50);
+        }
         return response()->json($enroleeVisits);
     }
     
