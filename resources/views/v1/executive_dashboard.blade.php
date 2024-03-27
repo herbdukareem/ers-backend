@@ -75,6 +75,9 @@ $facilities = Facility::all();
     <div :key="chartRefresh" class="grid md:grid-cols-3 grid-cols-1 w-full gap-5">
         <!-- <div id="enrolleeByVulnerableGroup" class="chart-container col-span-1  h-[250px] bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand('enrolleeByVulnerableGroup')"></div> -->
         <div id="enrolleeByVulnerableGroupCont" class="speedialer w-full col-span-1 h-[250px] relative overflow-y-hidden" @dblclick="toggleExpand('enrolleeByVulnerableGroupCont')">
+            <div class="text-center hidden titleData gradient w-50 p-[2px] mb-2">
+                Data from @{{title}}
+            </div>
             <div id="enrolleeByVulnerableGroup" v-show="!dataCharts?.enrolleeByVulnerableGroup" :class="!dataCharts?.enrolleeByVulnerableGroup ? 'activechart' : 'activeNot'" class="chart-container absolute h-[inherit] w-full bg-[transparent] transition-all duration-300 ease-in-out"></div>
             <div id="enrolleeByVulnerableGroup_sub"  v-show="dataCharts?.enrolleeByVulnerableGroup" :class="dataCharts?.enrolleeByVulnerableGroup ? 'activechart' : 'activeNot'" class="chart-container absolute h-[inherit] w-full bg-[transparent] transition-all duration-300 ease-in-out"></div>
             <p-speeddial :model="[
@@ -85,7 +88,10 @@ $facilities = Facility::all();
 
         <div id="EnrolleeBySex" class="chart-container col-span-1 h-[250px]  bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand('EnrolleeBySex')"></div>
         <div id="enrolleeByZone" class="chart-container col-span-1 h-[250px]  bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand('enrolleeByZone')"></div>
-        <div id="topAccessedServiceCont"  class="speedialer w-full col-span-1 h-[250px] relative overflow-y-hidden" @dblclick="toggleExpand('topAccessedServiceCont')">
+        <div id="topAccessedServiceCont"  class="speedialer w-full col-span-1 h-[250px] relative overflow-y-hidden" @dblclick="toggleExpand('topAccessedServiceCont')">                
+                <div class="text-center hidden titleData gradient w-50 p-[2px] mb-2">
+                    Data from @{{title}}
+                </div>
                 <div v-show="!dataCharts?.topAccessedService" :class="!dataCharts?.topAccessedService?'activechart': 'activeNot'" id="topAccessedService" class="chart-container absolute h-[inherit] w-full  bg-[transparent] transition-all duration-300 ease-in-out "  ></div>
                 <div v-show="dataCharts?.topAccessedService" :class="dataCharts?.topAccessedService?'activechart': 'activeNot'" id="topAccessedService_sub" class="chart-container absolute h-[inherit] w-full  bg-[transparent] transition-all duration-300 ease-in-out "  ></div>
                 <p-speeddial :model="[{label: 'Refresh',icon: 'pi pi-refresh',command: ()=>{dataCharts.topAccessedService = false} },{label: 'Expand',icon: 'pi pi-window-maximize',command: () => {toggleExpand('topAccessedServiceCont')}}]" 
@@ -156,7 +162,7 @@ $facilities = Facility::all();
                     dateType:null,
                 },
                 filters: {
-                    dateRange: 'Inception',
+                    dateRange: null,
                     search: ''
                 },
                 swiper:null,
@@ -165,6 +171,7 @@ $facilities = Facility::all();
                 // Additional data properties...            
         },
         created() {
+            this.filters.dateRange = ['2019-01-01',this.getDateNow()],
             // Call the API endpoints when the component is created
             this.fetchTotalEncounters();
             /*    this.fetchTotalEnrollees();
@@ -178,7 +185,16 @@ $facilities = Facility::all();
             window.addEventListener('custom-input-event', this.searchedInput);
             window.addEventListener('custom-date-event', this.searchedDate);
         },
-        methods: {            
+        methods: {     
+            getDateNow(){
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0'); // Add leading zero for single-digit months
+                const day = String(today.getDate()).padStart(2, '0'); // Add leading zero for single-digit days
+
+                return `${year}-${month}-${day}`;
+
+            },       
             async customFetch(route, filter){
                 this.chartRefreshSub += 1
                 this.loading = true
@@ -195,6 +211,7 @@ $facilities = Facility::all();
                 
                 const chartContainer = document.getElementById(chartId)
                 if (this.expandedChartId) {
+                    chartContainer.querySelector('.titleData')?.classList.remove('hidden')
                     chartContainer.style.position = 'fixed';
                     chartContainer.style.left = '0';
                     chartContainer.style.top = '0';
@@ -203,6 +220,7 @@ $facilities = Facility::all();
                     chartContainer.style.zIndex = '9999';
                     chartContainer.style.backgroundColor = '#000';
                 } else {                    
+                    chartContainer.querySelector('.titleData')?.classList.add('hidden')
                     chartContainer.style.position = '';
                     chartContainer.style.left = '';
                     chartContainer.style.top = '';
@@ -439,7 +457,7 @@ $facilities = Facility::all();
                 this.visible = false                            
                 const filter = {
                         value :this.subchartvalue,
-                        dateRange:this.dateRange,
+                        dateRange:this.filters.dateRange,
                         type:this.filters.type,
                         ...filters
                         /* dateType:this.dateType */

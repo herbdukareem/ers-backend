@@ -6,11 +6,20 @@ const ChartFilter = {
     <div class="relative top-20 z-[109] mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
       <div class="mt-3 text-center text-gray-700">
 
-      <h3 class="text-lg mb-3 leading-6 text-left font-medium text-gray-700 cursor-pointer user-select-none" >
-             <input type="checkbox" @change="filter.dateType=''" v-model="use_date_type" name="" value="dateType" ref="datetype" class="cursor-pointer" /><span @click="$refs.datetype.click()">Use Date Type</span>
+      <h3 class=" mb-3 leading-6 text-left font-medium text-gray-700 cursor-pointer user-select-none" >
+            <span class="text-left block text-lg">View By:</span>        
+            <div class="mb-2 ">              
+              <input type="radio"  v-model="filter.query_by" name="query_by" value="dateType" ref="dateType" class="cursor-pointer" /><span @click="$refs.dateType.click()"> DateType</span>
+            </div>
+            <div class="mb-2 ">
+              <input type="radio"  v-model="filter.query_by" name="query_by" value="facility" ref="facility" class="cursor-pointer" /><span @click="$refs.facility.click()"> Facility</span>
+            </div>
+            <div class="mb-2 ">
+              <input type="radio"  v-model="filter.query_by" name="query_by" value="ward" ref="ward" class="cursor-pointer" /><span @click="$refs.ward.click()"> Ward</span>
+            </div>
         </h3>
             <div class="w-full">            
-              <div class="mt-2 w-full mb-3" v-if="use_date_type.includes('dateType')">
+              <div class="mt-2 w-full mb-3" v-if="filter.query_by == 'dateType'">
                   <span class="text-left block">Date Type:</span>                
                   <select v-model="filter.dateType" class=" w-full text-gray-700  py-2 px-4 border border-gray-400 rounded"> 
                     <option value="days"> Day </option>
@@ -30,8 +39,8 @@ const ChartFilter = {
                   <span class="text-left block">Lga:</span>                
                   <v-dropdown @change="updateWards" placeholder='Select Lga' v-model="filter.location.lga" :options="lgas"
                     option-label="lga" />
-                </div>              
-                <div class="mb-3 relative z-[0] " v-show="filterOptionvValue == 'lga_ward' && filter.location.lga">
+                </div>                              
+                <div class="mb-3 relative z-[0] " v-show="filterOptionvValue == 'lga_ward' && filter.location.lga && filter.query_by =='ward'">
                   <span class="text-left block">Ward:</span>
                   <v-dropdown v-model="filter.location.ward" placeholder='Select Ward' :options="filterWards" 
                     optionLabel="ward" />
@@ -68,6 +77,7 @@ const ChartFilter = {
         filter:{
             location:{lga:null, ward:null},
             zone:null,
+            query_by:'ward',
             dateType:null,
         },
       };

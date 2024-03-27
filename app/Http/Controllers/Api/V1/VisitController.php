@@ -224,7 +224,39 @@ class VisitController extends Controller
     {
         extract($this->getChartRequestData($request));        
 
-        list($selectAs, $groupBy) = $this->getSelectAndGroupBySettings($location, $zone, $dateType,'date_of_visit');
+        $selectAs = '';
+        $groupBy = '';
+      
+    
+        if (!empty($zone)) {
+            $selectAs = DB::raw("IF(l.zone = 1, 'Zone A', IF(l.zone = 2,'Zone B', 'Zone C')) as name");
+            $groupBy = "name";
+        }
+        
+        if($queryBy == 'dateType'){
+            switch ($dateType) {
+                case 'days':
+                    $groupBy = "DATE(date_of_visit)";
+                    $selectAs = DB::raw("DATE(date_of_visit) as name");
+                    break;
+                case 'months':
+                    $groupBy = "CONCAT(YEAR(date_of_visit), '-',MONTH(date_of_visit))";
+                    $selectAs = DB::raw("CONCAT(YEAR(date_of_visit), '-',MONTH(date_of_visit)) as name");
+                    break;
+                case 'years':
+                    $groupBy = "YEAR(date_of_visit)";
+                    $selectAs = DB::raw("YEAR(date_of_visit) as name");
+                    break;
+                default:
+                    break;                
+            }
+        }else if($queryBy == 'facility'){
+            $selectAs = DB::raw("p.hcpname as name");
+            $groupBy = "p.hcpname";
+        }else if($queryBy == 'ward'){
+            $selectAs = DB::raw("w.ward as name");
+            $groupBy = "w.ward";
+        }
 
         $service_accessed_id = Service::where('case_name', $value)->value('id'); // Assuming you're only interested in the ID
 
@@ -250,7 +282,31 @@ class VisitController extends Controller
     {
         extract($this->getChartRequestData($request));        
 
-        list($selectAs, $groupBy) = $this->getSelectAndGroupBySettings($location, $zone, $dateType,'synced_datetime');
+        if($queryBy == 'dateType'){
+            switch ($dateType) {
+                case 'days':
+                    $groupBy = "DATE(synced_datetime)";
+                    $selectAs = DB::raw("DATE(synced_datetime) as name");
+                    break;
+                case 'months':
+                    $groupBy = "CONCAT(YEAR(synced_datetime), '-',MONTH(synced_datetime))";
+                    $selectAs = DB::raw("CONCAT(YEAR(synced_datetime), '-',MONTH(synced_datetime)) as name");
+                    break;
+                case 'years':
+                    $groupBy = "YEAR(synced_datetime)";
+                    $selectAs = DB::raw("YEAR(synced_datetime) as name");
+                    break;
+                default:
+                    break;                
+            }
+        }else if($queryBy == 'facility'){
+            $selectAs = DB::raw("p.hcpname as name");
+            $groupBy = "p.hcpname";
+        }else if($queryBy == 'ward'){
+            $selectAs = DB::raw("w.ward as name");
+            $groupBy = "w.ward";
+        }
+        
         // Building the initial query
         $query = Enrolee::select(DB::raw('COUNT(vulnerability_status) AS total'),$selectAs)                        
                         ->whereBetween('synced_datetime',$dateRange);                            
@@ -294,6 +350,7 @@ class VisitController extends Controller
     private function getChartRequestData(Request $request) {
         $dateRange = $request->input('dateRange');
         $dateType = $request->input('dateType'); 
+        $queryBy = $request->input('query_by'); 
         $value = $request->input('value');
         $dateRange = $this->getDateRange($dateRange);
         $location = $request->input('location');
@@ -305,52 +362,18 @@ class VisitController extends Controller
         $zone = $request->input('zone');
         $external_db  = env('EX_DB_DATABASE');
         
-        return compact('dateRange', 'dateType', 'value', 'location', 'zone', 'external_db');
+        return compact('dateRange', 'dateType', 'value', 'location', 'zone', 'external_db', 'queryBy');
     }    
 
-    private function getSelectAndGroupBySettings($location, $zone, $dateType, $colunm_name) {
-        $selectAs = '';
-        $groupBy = '';
-    
-        if (!empty($location['lga_id'])) {
-            if (empty($location['ward_id']) && empty($groupBy)) {
-                $selectAs = DB::raw("w.ward as name");
-                $groupBy = "w.ward";
-            }
-        }
-    
-        if (!empty($zone)) {
-            $selectAs = DB::raw("IF(l.zone = 1, 'Zone A', IF(l.zone = 2,'Zone B', 'Zone C')) as name");
-            $groupBy = "name";
-        }
-        
-        switch ($dateType) {
-            case 'days':
-                $groupBy = "DATE($colunm_name)";
-                $selectAs = DB::raw("DATE($colunm_name) as name");
-                break;
-            case 'months':
-                $groupBy = "CONCAT(YEAR($colunm_name), '-',MONTH($colunm_name))";
-                $selectAs = DB::raw("CONCAT(YEAR($colunm_name), '-',MONTH($colunm_name)) as name");
-                break;
-            case 'years':
-                $groupBy = "YEAR($colunm_name)";
-                $selectAs = DB::raw("YEAR($colunm_name) as name");
-                break;
-            default:
-                break;                
-        }
-    
-        return [$selectAs, $groupBy];
-    }
-
     private function applyLocationFilters($query, $location, $external_db, $table_name) {
-        $query = $query->join("$external_db.lga as l", $table_name.'.lga', '=', 'l.id');
+        $query = $query->join("$external_db.lga as l", $table_name.'.lga', '=', 'l.id')
+                    ->join("$external_db.ward as w", $table_name.'.ward', '=', 'w.id')
+                    ->join("$external_db.tbl_providers as p", 'p.hcpward', '=', 'w.id');
         if (!empty($location['lga_id'])) {
             $query = $query->where('l.id', $location['lga_id']);
         }
     
-        $query = $query->join("$external_db.ward as w", $table_name.'.ward', '=', 'w.id');
+        
         if (!empty($location['ward_id'])) {
             $query = $query->where('w.id', $location['ward_id']);
         }

@@ -44,7 +44,8 @@ $facilities = Facility::all();
             <p-column field="lga_name" header="Lga" ></p-column>
            
             <p-column field="ward_name" header="Ward" ></p-column>
-            <p-column field="reason_for_visit" header="Reason" style="width: 20%"></p-column>
+            <p-column field="reason_for_visit" header="Reason" style="width: 8%"></p-column>
+            <p-column field="phone" header="Phone Number" style="width:6%"></p-column>
             <p-column field="date_of_visit" header="Date of Visit" ></p-column>
             <template #groupfooter="slotProps">
                 <div class="flex justify-content-end font-bold w-full">Total Visits: @{{slotProps.data.visit_count}}</div>
