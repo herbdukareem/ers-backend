@@ -189,7 +189,7 @@ class EnroleeVisitController extends Controller
             $dateRange[0] = Carbon::parse($dateRange[0])->format('Y-m-d');
             $dateRange[1] = Carbon::parse($dateRange[1])->format('Y-m-d');
         }     
-        $enroleeVisits = EnroleeVisit::whereBetween('date_of_visit',$dateRange)->paginate(100);
+        $enroleeVisits = EnroleeVisit::whereBetween('date_of_visit',$dateRange)->paginate(50);
         return response()->json($enroleeVisits);
     }
     
