@@ -552,7 +552,7 @@ class VisitController extends Controller
 
             $api = env('ACC_API');
             $response = Http::withHeaders(['_token' => $sessionToken])
-            ->timeout(30)
+            ->timeout(300)
             ->retry(3, 100)
             ->get($api . '/analytics');
 
@@ -576,7 +576,7 @@ class VisitController extends Controller
             $api = env('ACC_API');
             $response = Http::withHeaders(['_token' => $sessionToken])
                         ->timeout(30)
-                        ->retry(3, 100)
+                        ->retry(3, 300)
                     ->{$request->method}($api . '/'. $request->route,$request->all());
 
             if ($response->status() == 200) {
