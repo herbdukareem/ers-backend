@@ -479,7 +479,7 @@ $facilities = Facility::all();
                 this.total_expenditure = this.expenditures.reduce((total, appr) => total + appr.expenditure_total_amount, 0);
             },
             async loadExpenditures(){
-                const response = await axios.post(this.prefix+'/accounts/', {
+                const response = await axios.post(this.prefix+'/accounts/request', {
                     route:'fetch_expenditures',
                     method:'post',
                     scheme_id:this.selected_scheme?.id,

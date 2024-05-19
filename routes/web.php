@@ -43,6 +43,7 @@ Route::prefix('v1')->group(function(){
     Route::get('/reports/total-encounters', [VisitController::class, 'totalEncounters']);
     Route::post('/accounts/analytics', [VisitController::class, 'accountAnalytics']);
     Route::post('/accounts', [VisitController::class, 'accountRequest']);
+    Route::post('/accounts/request', [VisitController::class, 'accountRequest']);
 
     Route::post('/executive/analytics', [VisitController::class, 'ExecutiveAnalysis']);
     Route::post('ers/reports/analytics', [VisitController::class, 'EnrolleesAnalysis']);
