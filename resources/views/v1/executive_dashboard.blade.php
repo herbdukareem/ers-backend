@@ -11,30 +11,31 @@ $facilities = Facility::all();
 @extends('../layouts.app')
 
 @section('content')
-<script src="{{asset('components/chartFilter.js')}}"></script>    
+<script src="{{asset('components/chartFilter.js')}}"></script>
 <div class="w-full mt-4 bg-[black] p-5 text-white" style="border-radius: 25px;" id="appRoot2">
-    
+
     <div class="gradient w-50 p-[2px] mb-1 text-center grid md:grid-cols-3 grid-cols-5 mb-5">
         <span></span>
         <span class="text-center md:col-span-1 col-span-3">
             Data from @{{title}}
         </span>
+        <i @click="reload()"  class=" fa fa-refresh mx-3 place-self-center mb-3 cursor-pointer hover:text-[#1BFFFF]" title="refresh"></i>
         <i @click="toggleFullscreen('appRoot2')" :class="isFullScreen? 'fa-solid' : ' fa-regular'" class=" fa-window-maximize place-self-end cursor-pointer hover:text-[#1BFFFF]" :title="isFullScreen?'Minimize':'Maximize'"></i>
     </div>
-    <div class="grid md:grid-cols-3 grid-cols-1 w-full gap-5">      
+    <div class="grid md:grid-cols-3 grid-cols-1 w-full gap-5">
         <div class="chart-container px-3 py-2 grid grid-cols-1  place-content-center gap-3">
             <div class="grid sm:grid-cols-2 grid-cols-1">
                 <span class="place-self-center">Total Enrollee:</span>
                 <h4 class=" font-bold text-xl place-self-center">@{{encountersAnalytics?.totalEnrolleesAll}}</h4>
             </div>
-            <div class="cgradient" ></div>            
+            <div class="cgradient" ></div>
             <div class="grid grid-cols-1" :class="`sm:grid-cols-${encountersAnalytics?.enrollee_by_scheme?.length}`">
                 <div class="text-center" v-for="(scheme,i) in encountersAnalytics?.enrollee_by_scheme">
                     <span class="place-self-left text-sm">Total @{{scheme.mode_of_enrolment}}</span>
                     <h4>@{{formatNumber(scheme?.total)}}</h4>
-                </div>               
+                </div>
             </div>
-        </div>  
+        </div>
         <div class="chart-container px-3 py-2 grid grid-cols-1  place-content-center gap-3">
             <div class="grid sm:grid-cols-2 grid-cols-1">
                 <span class="place-self-center">Total Capitation:</span>
@@ -47,7 +48,7 @@ $facilities = Facility::all();
                     <h4>@{{formatCurrency(medicalAnalytics?.medical_bill_amount)}}
                     <span class="ml-2">(@{{computePerc(medicalAnalytics?.medical_bill_amount, encountersAnalytics?.capitation)}})</span>
                     </h4>
-                </div>                
+                </div>
                 <div  class="place-self-center">
                     <span class="place-self-left text-sm text-right">Cap Proceeds</span>
                     <h4 class="text-right">@{{ formatCurrency(encountersAnalytics?.capitation - medicalAnalytics?.medical_bill_amount)}}
@@ -56,7 +57,7 @@ $facilities = Facility::all();
                 </div>
             </div>
         </div>
-           
+
         <div class="chart-container px-3 py-2 grid grid-cols-1  place-content-center gap-3">
             <div class="grid sm:grid-cols-2 grid-cols-1">
                 <span class="place-self-center">Total Encounter Visits:</span>
@@ -65,11 +66,11 @@ $facilities = Facility::all();
             <div class="cgradient" ></div>
             <div  class="text-center">
                     <span class="place-self-left text-sm text-right">Enrollees with Encounter Visit</span>
-                    <h4 class="place-self-center">@{{encountersAnalytics?.total_distinct_visits}}        
+                    <h4 class="place-self-center">@{{encountersAnalytics?.total_distinct_visits}}
                     <span class="ml-2">(@{{computePerc(encountersAnalytics?.total_distinct_visits,Number(encountersAnalytics?.totalEnrolleesAll.replaceAll(',','')))}})</span>
                     </h4>
                 </div>
-        </div>   
+        </div>
     </div>
     <div class="ggradient my-5"></div>
     <div :key="chartRefresh" class="grid md:grid-cols-3 grid-cols-1 w-full gap-5">
@@ -88,21 +89,21 @@ $facilities = Facility::all();
 
         <div id="EnrolleeBySex" class="chart-container col-span-1 h-[250px]  bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand('EnrolleeBySex')"></div>
         <div id="enrolleeByZone" class="chart-container col-span-1 h-[250px]  bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand('enrolleeByZone')"></div>
-        <div id="topAccessedServiceCont"  class="speedialer w-full col-span-1 h-[250px] relative overflow-y-hidden" @dblclick="toggleExpand('topAccessedServiceCont')">                
+        <div id="topAccessedServiceCont"  class="speedialer w-full col-span-1 h-[250px] relative overflow-y-hidden" @dblclick="toggleExpand('topAccessedServiceCont')">
                 <div class="text-center hidden titleData gradient w-50 p-[2px] mb-2">
                     Data from @{{title}}
                 </div>
                 <div v-show="!dataCharts?.topAccessedService" :class="!dataCharts?.topAccessedService?'activechart': 'activeNot'" id="topAccessedService" class="chart-container absolute h-[inherit] w-full  bg-[transparent] transition-all duration-300 ease-in-out "  ></div>
                 <div v-show="dataCharts?.topAccessedService" :class="dataCharts?.topAccessedService?'activechart': 'activeNot'" id="topAccessedService_sub" class="chart-container absolute h-[inherit] w-full  bg-[transparent] transition-all duration-300 ease-in-out "  ></div>
-                <p-speeddial :model="[{label: 'Refresh',icon: 'pi pi-refresh',command: ()=>{dataCharts.topAccessedService = false} },{label: 'Expand',icon: 'pi pi-window-maximize',command: () => {toggleExpand('topAccessedServiceCont')}}]" 
+                <p-speeddial :model="[{label: 'Refresh',icon: 'pi pi-refresh',command: ()=>{dataCharts.topAccessedService = false} },{label: 'Expand',icon: 'pi pi-window-maximize',command: () => {toggleExpand('topAccessedServiceCont')}}]"
                 :radius="80"  direction="up" :style="{ left: 0, bottom: 0 }" > </p-speeddial>
         </div>
-        <div id="EnrolleeByOccupations" class="chart-container col-span-1 h-[250px]  bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand('EnrolleeByOccupations')"></div>      
-        <div id="medicalsChart" class="chart-container col-span-1 h-[250px]  bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand('medicalsChart')"></div>  
-    </div>    
+        <div id="EnrolleeByOccupations" class="chart-container col-span-1 h-[250px]  bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand('EnrolleeByOccupations')"></div>
+        <div id="medicalsChart" class="chart-container col-span-1 h-[250px]  bg-[transparent] transition-all duration-300 ease-in-out "  @dblclick="toggleExpand('medicalsChart')"></div>
+    </div>
 
     <transition name="fade">
-    <div v-if="visible">        
+    <div v-if="visible">
         <v-chartfilter @on-selected="subChartReolver" :lgas="lgas" :wards="wards" @close="visible=false"></v-chartfilter>
     </div>
   </transition>
@@ -148,7 +149,7 @@ $facilities = Facility::all();
                 totalEncountersLastMonth: null,
                 totalEncountersLastYearByQuarter: {},
                 totalEncountersThisYearByQuarter: {},
-                servicesBySex: [],                
+                servicesBySex: [],
                 chartRefresh: 0,
                 chartRefreshSub:0,
                 medicalAnalytics:{},
@@ -166,9 +167,9 @@ $facilities = Facility::all();
                     search: ''
                 },
                 swiper:null,
-                
+
             }
-                // Additional data properties...            
+                // Additional data properties...
         },
         created() {
             this.filters.dateRange = ['2019-01-01',this.getDateNow()],
@@ -179,13 +180,13 @@ $facilities = Facility::all();
                this.fetchEncountersLastMonth();
                this.top10Services();
                this.encountersByQuarter();         */
-            
+
         },
-        mounted() {            
+        mounted() {
             window.addEventListener('custom-input-event', this.searchedInput);
             window.addEventListener('custom-date-event', this.searchedDate);
         },
-        methods: {     
+        methods: {
             getDateNow(){
                 const today = new Date();
                 const year = today.getFullYear();
@@ -194,7 +195,7 @@ $facilities = Facility::all();
 
                 return `${year}-${month}-${day}`;
 
-            },       
+            },
             async customFetch(route, filter){
                 this.chartRefreshSub += 1
                 this.loading = true
@@ -202,13 +203,13 @@ $facilities = Facility::all();
                 this.loading = false
                 return response.data
             },
-            toggleExpand(chartId) {                
+            toggleExpand(chartId) {
                 if (this.expandedChartId === chartId) {
                     this.expandedChartId = null;
                 } else {
                     this.expandedChartId = chartId;
                 }
-                
+
                 const chartContainer = document.getElementById(chartId)
                 if (this.expandedChartId) {
                     chartContainer.querySelector('.titleData')?.classList.remove('hidden')
@@ -219,7 +220,7 @@ $facilities = Facility::all();
                     chartContainer.style.height = '100vh';
                     chartContainer.style.zIndex = '9999';
                     chartContainer.style.backgroundColor = '#000';
-                } else {                    
+                } else {
                     chartContainer.querySelector('.titleData')?.classList.add('hidden')
                     chartContainer.style.position = '';
                     chartContainer.style.left = '';
@@ -228,7 +229,7 @@ $facilities = Facility::all();
                     chartContainer.style.height = '';
                     chartContainer.style.zIndex = '';
                     chartContainer.style.backgroundColor = '#000';
-                }                          
+                }
             },
             plotChart(chartId, chartType, titleText, categories, seriesName, data, isDoughnut = false, rotate=0) {
                 try {
@@ -280,8 +281,8 @@ $facilities = Facility::all();
                             },
                             showInLegend: true,
                             innerSize: isDoughnut ? '50%' : undefined,
-                            series:this.dataLabels(chartType,chartId, rotate),                            
-                          
+                            series:this.dataLabels(chartType,chartId, rotate),
+
                         },
                         series: [{
                             name: seriesName,
@@ -325,20 +326,20 @@ $facilities = Facility::all();
                         yAxis: [
                             {
                                 labels:{
-                                    format: '₦{value}', style:{color:'#fff'} 
+                                    format: '₦{value}', style:{color:'#fff'}
                                 },
                                 title:null
-                             /*    title:{                                
-                                    text: capTotalAmountName, style:{color:'#fff'} 
+                             /*    title:{
+                                    text: capTotalAmountName, style:{color:'#fff'}
                                 }, */
                             },
                             {
                                 labels:{
-                                    format: '₦{value}', style:{color:'#fff'} 
+                                    format: '₦{value}', style:{color:'#fff'}
                                 },
                                 title:null
-                             /*    title:{                                
-                                    text: totalAmountName, style:{color:'#fff'} 
+                             /*    title:{
+                                    text: totalAmountName, style:{color:'#fff'}
                                 }, */
                             },
                         ],
@@ -349,7 +350,7 @@ $facilities = Facility::all();
                             },
                             series: {
                                 rotation: rotate,
-                                enabled: true,                                
+                                enabled: true,
                             }
                         },
                         tooltip: {
@@ -387,11 +388,11 @@ $facilities = Facility::all();
                             }
                         }]
                     });
-            },            
-            searchedDate(e) {                
+            },
+            searchedDate(e) {
                 if(e.detail.value){
                     this.filters.dateRange = e.detail.value
-                    this.fetchTotalEncounters(this.filters)            
+                    this.fetchTotalEncounters(this.filters)
                 }
             },
             searchedInput(e) {
@@ -401,29 +402,29 @@ $facilities = Facility::all();
                 }, 2500)
             },
             async fetchMedical(){
-                
-               
-            }, 
+
+
+            },
             options3d(type){
                 if(type == 'pie'){
-                    return { 
+                    return {
                         enabled: true,
                         alpha: 45,
                         beta: 0
                     }
                 }
                 return undefined
-            },        
+            },
             dataLabels(type, chartId="default", rotate=-90){
                 if(type == 'pie'){
                     return {
                             allowPointSelect: true,
                             cursor: 'pointer',
                             depth: 35,
-                            dataLabels: 
+                            dataLabels:
                             [
-                                { enabled: true, distance: 20}, 
-                                { enabled: true, distance: -40, format: '{point.percentage:.1f}%', 
+                                { enabled: true, distance: 20},
+                                { enabled: true, distance: -40, format: '{point.percentage:.1f}%',
                                     style: { fontSize: '1.2em', textOutline: 'none', opacity: 0.7 },
                                     filter: { operator: '>', property: 'percentage', value: 10 }
                                 }
@@ -434,7 +435,7 @@ $facilities = Facility::all();
                             borderWidth: 0,
                             dataLabels: {
                                 rotation: rotate,
-                                enabled: true,                                
+                                enabled: true,
                             }
                         }
                 }else{
@@ -442,19 +443,19 @@ $facilities = Facility::all();
                         events: {
                                 click: (event) =>{
                                     this.visible = true;
-                                    this.subchartvalue = event.target.point.category  
-                                    this.selected_chartID = chartId;                                                                      
+                                    this.subchartvalue = event.target.point.category
+                                    this.selected_chartID = chartId;
                                 }
                             },
                             dataLabels: {
                                 rotation: rotate,
-                                enabled: true,                                
+                                enabled: true,
                             }
                     }
                 }
-            },            
-            async subChartReolver(filters){    
-                this.visible = false                            
+            },
+            async subChartReolver(filters){
+                this.visible = false
                 const filter = {
                         value :this.subchartvalue,
                         dateRange:this.filters.dateRange,
@@ -476,18 +477,18 @@ $facilities = Facility::all();
                 }
 
                 if(this.selected_chartID == 'topAccessedService'){
-                    const response = await this.customFetch('top_accessed_services',filter)                                        
+                    const response = await this.customFetch('top_accessed_services',filter)
                     const categories = response.map(item => item.name);
-                    const data = response.map(item => item.total);                    
-                    this.plotChart(this.selected_chartID+'_sub', 'area',chartName, categories, 'Total Cases', data);                                        
+                    const data = response.map(item => item.total);
+                    this.plotChart(this.selected_chartID+'_sub', 'area',chartName, categories, 'Total Cases', data);
                     this.dataCharts[this.selected_chartID] = true
                 }
                 chartName = "Number of "+ chartName
                 if(this.selected_chartID == 'enrolleeByVulnerableGroup'){
-                    const response = await this.customFetch('enrollee_by_category',filter)                                        
+                    const response = await this.customFetch('enrollee_by_category',filter)
                     const categories = response.map(item => item.name);
-                    const data = response.map(item => item.total);                    
-                    this.plotChart(this.selected_chartID+'_sub', 'area',chartName, categories, 'Values', data);                                        
+                    const data = response.map(item => item.total);
+                    this.plotChart(this.selected_chartID+'_sub', 'area',chartName, categories, 'Values', data);
                     this.dataCharts[this.selected_chartID] = true
                 }
             },
@@ -504,12 +505,12 @@ $facilities = Facility::all();
                 this.encountersAnalytics = response.data
                 this.loading = false
                 try {
-                    //                    
+                    //
                     this.replotBars()
                     this.plotChart('EnrolleeBySex', 'pie', 'Enrollee by Sex', [], 'Sex', Object.entries(this.encountersAnalytics.sex).map(([value, name]) => ({
                         name,
                         y: parseInt(value)
-                    })));                    
+                    })));
                     this.plotChart('enrolleeByZone', 'pie', 'Enrollee By Zone', [], 'Enrollee By Zone', this.encountersAnalytics.enrollee_by_zone.map(item => ({
                         name: item.zone,
                         y: item.total
@@ -528,11 +529,11 @@ $facilities = Facility::all();
                 } catch (e) {
                     console.log(e,4444)
                 }
-            },  
+            },
             replotBars(){
                     const Okeys = Object.keys(this.encountersAnalytics.occupations).slice(0, this.barsLength);
                     const Ovalues = Object.values(this.encountersAnalytics.occupations).slice(0,this.barsLength);
-                    this.plotChart('EnrolleeByOccupations', 'column', 'Enrollee By Occupations', Okeys, 'Occupations', Ovalues,false,-90);                    
+                    this.plotChart('EnrolleeByOccupations', 'column', 'Enrollee By Occupations', Okeys, 'Occupations', Ovalues,false,-90);
                     this.plotChart('topAccessedService', 'bar', 'Top Accessed Services', Object.keys(this.encountersAnalytics.top_accessed), 'Services', Object.values(this.encountersAnalytics.top_accessed));
                     this.plotChart('enrolleeByVulnerableGroup', 'bar', 'Number of Enrollee By Category', Object.keys(this.encountersAnalytics.vulnerability_status), 'Vunerables', Object.values(this.encountersAnalytics.vulnerability_status));
             },
@@ -548,7 +549,7 @@ $facilities = Facility::all();
                     return '0%'
                 }
                 return output?.toFixed(1) + '%';
-            },                    
+            },
             toggleFullscreen(elementId) {
                 const elem = document.getElementById(elementId);
                 const isFullscreen = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
@@ -574,8 +575,10 @@ $facilities = Facility::all();
                     document.msExitFullscreen();
                     }
                 }
+            },
+            reload(){
+                this.fetchTotalEncounters();
             }
-
         },
         watch:{
             requestResolver:(newV,oldV)=>{
@@ -589,7 +592,7 @@ $facilities = Facility::all();
                 if (Array.isArray(this.filters.dateRange)) {
                     return this.filters.dateRange.map(date => {
                         const formattedDate = new Date(date).toLocaleDateString('en-US', {
-                        month: 'short', 
+                        month: 'short',
                         year: 'numeric'
                         });
                         return formattedDate;
@@ -599,14 +602,14 @@ $facilities = Facility::all();
             }
         }
 
-        
+
     })
     app.use(primevue.config.default);
-    app.component('p-speeddial', primevue.speeddial); 
-    app.component('p-dialog', primevue.dialog); 
-    app.component('p-dropdown', primevue.dropdown); 
-    app.component('p-selectbutton', primevue.selectbutton);        
-    
+    app.component('p-speeddial', primevue.speeddial);
+    app.component('p-dialog', primevue.dialog);
+    app.component('p-dropdown', primevue.dropdown);
+    app.component('p-selectbutton', primevue.selectbutton);
+
     app.mount('#appRoot2')
 </script>
 <style>
@@ -617,14 +620,14 @@ $facilities = Facility::all();
     .chart-container {
         border-radius: 25px;
         overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.18);     
+        border: 1px solid rgba(255, 255, 255, 0.18);
 
         /* Additional styling */
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         /* Optional: adds a subtle shadow */
         transition: left 0.5s ease-in-out, opacity 0.5s ease;
     }
-    
+
 
     .activeNot{
         left: -100%; /* Start from the left */
@@ -641,7 +644,7 @@ $facilities = Facility::all();
 
 .speedialer:hover .p-speeddial{
     transform: translateY(0px);
-    opacity: 1; 
+    opacity: 1;
 }
 .p-speeddial{
     transition: left 0.5s ease-in-out, opacity 0.5s ease;
@@ -649,15 +652,15 @@ $facilities = Facility::all();
     opacity: 0;
 }
 .p-speeddial button.p-speeddial-button {
-    
+
      /* Adjust the color to your preference */
     cursor: pointer;
 }
 .p-speeddial button.p-speeddial-button:focus{
     outline: 0;
 }
-.p-speeddial .p-speeddial-item {    
-    display: flex; 
+.p-speeddial .p-speeddial-item {
+    display: flex;
     justify-content: center;
     align-items: center;
 }
@@ -667,7 +670,7 @@ $facilities = Facility::all();
   durations and timing functions.
 */
 .slide-fade-enter-active, .slide-fade-leave-active {
-  transition: all 0.3s; 
+  transition: all 0.3s;
 }
 
 .slide-fade-enter-from {

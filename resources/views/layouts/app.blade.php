@@ -4,7 +4,11 @@ use Illuminate\Support\Facades\Route;
 $routesWithPrimeVue = [
     "ers_report",
     'executive_dashboard',
-    "Enrollee-Visits"
+    "Enrollee-Visits",
+    "accounts_dashboard"
+];
+$routeWithoutSearch = [
+    "accounts_dashboard"
 ];
 ?>
 
@@ -15,24 +19,25 @@ $routesWithPrimeVue = [
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>ERS</title>
-    <script src="{{asset('datepicker.js')}}"></script>    
+    <script src="{{asset('datepicker.js')}}"></script>
     <link href="{{asset('datepicker.css')}}" rel="stylesheet">
     <link href="{{asset('style.css')}}" rel="stylesheet">
     <link href="{{asset('vivify.css')}}" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-element-bundle.min.js"></script>
+    <script src="{{ asset('swiper.js') }}"></script>
 
     <!-- Fonts -->
-    <link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="{{ asset('fonts.css') }}" rel="stylesheet">
+
+    <script src="{{ asset('tailwind.js') }}"></script>
     <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous"> -->
     <!-- Styles -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.7/axios.min.js" integrity="sha512-NQfB/bDaB8kaSXF8E77JjhHG5PM6XVRxvHzkZiwl3ddWCEPBa23T76MuWSwAJdMGJnmQqM0VeY9kFszsrBEFrQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="{{ asset('axios.js') }}" ></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-    
+    <script src="{{ asset('vue3.js') }}"></script>
+
+    <script src="{{ asset('highcharts.js') }}"></script>
+
     <script src="{{asset('chartjs.js')}}"></script>
     <style>
         /*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
@@ -406,19 +411,19 @@ $routesWithPrimeVue = [
         }
     </style>
     @if(in_array(Route::currentRouteName(),$routesWithPrimeVue))
-        <script src="https://unpkg.com/primevue@3.50.0/core/core.min.js"></script>    
+        <script src="https://unpkg.com/primevue@3.50.0/core/core.min.js"></script>
         <script src="https://unpkg.com/primevue@3.50.0/calendar/calendar.min.js"></script>
         <script src="https://unpkg.com/primevue@3.50.0/datatable/datatable.min.js"></script>
-        <script src="https://unpkg.com/primevue@3.50.0/column/column.min.js"></script>                
+        <script src="https://unpkg.com/primevue@3.50.0/column/column.min.js"></script>
         <script src="https://unpkg.com/primevue@3.50.0/row/row.min.js" ></script>
         <script src="https://unpkg.com/primevue@3.50.0/columngroup/columngroup.min.js" ></script>
-        <!-- <script src="https://unpkg.com/primevue/dropdown/dropdown.min.js" ></script> -->
+         <script src="https://unpkg.com/primevue/skeleton/skeleton.min.js" ></script>
         <script src="https://unpkg.com/primevue@3.50.0/speeddial/speeddial.min.js" ></script>
-        <script src="https://unpkg.com/primevue@3.50.0/selectbutton/selectbutton.min.js" ></script>    
-        <link rel="stylesheet" href="https://unpkg.com/primevue@3.50.0/resources/themes/lara-light-green/theme.css" />    
-        <link rel="stylesheet" href="https://unpkg.com/primeicons@6.0.1/primeicons.css" async>        
+        <script src="https://unpkg.com/primevue@3.50.0/selectbutton/selectbutton.min.js" ></script>
+        <link rel="stylesheet" href="https://unpkg.com/primevue@3.50.0/resources/themes/lara-light-green/theme.css" />
+        <link rel="stylesheet" href="https://unpkg.com/primeicons@6.0.1/primeicons.css" async>
     @endif
-    <script src="{{asset('dropdown.js')}}"></script>    
+    <script src="{{asset('dropdown.js')}}"></script>
     <style>
         body {
             font-family: 'Nunito', sans-serif;
@@ -426,76 +431,76 @@ $routesWithPrimeVue = [
         .trax {
             transform: translateX(-450px) !important;
         }
-        
-.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
-  opacity: 0;
-}
-.loader {
-  width: 68px;
-  height: 68px;
-  border-radius: 50%;
-  display: inline-block;
-  position: relative;
-  background: linear-gradient(0deg, rgba(45, 61, 180, 0.2) 33%, #fff 100%);
-  box-sizing: border-box;
-  animation: rotation 1s linear infinite;
-}
-.loader::after {
-  content: '';  
-  box-sizing: border-box;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: #263238;
-}
-@keyframes rotation {
-  0% { transform: rotate(0deg) }
-  100% { transform: rotate(360deg)}
-} 
 
-.p-speeddial .p-speeddial-button {
-    /* Example of customizing the main button */
-    background-color: #5bcaff; /* Primary color */
-    border: none;
-}
+        .fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+        opacity: 0;
+        }
+        .loader {
+        width: 68px;
+        height: 68px;
+        border-radius: 50%;
+        display: inline-block;
+        position: relative;
+        background: linear-gradient(0deg, rgba(45, 61, 180, 0.2) 33%, #fff 100%);
+        box-sizing: border-box;
+        animation: rotation 1s linear infinite;
+        }
+        .loader::after {
+        content: '';
+        box-sizing: border-box;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: #263238;
+        }
+        @keyframes rotation {
+        0% { transform: rotate(0deg) }
+        100% { transform: rotate(360deg)}
+        }
 
-.p-speeddial .p-speeddial-item {
-    /* Example of customizing the item buttons */
-    background-color: #ffffff; /* Background color for items */
-    color: #333333; /* Text color for items */
-    border: 1px solid #dddddd; /* Border for a subtle outline */
-}
+        .p-speeddial .p-speeddial-button {
+            /* Example of customizing the main button */
+            background-color: #5bcaff; /* Primary color */
+            border: none;
+        }
+
+        .p-speeddial .p-speeddial-item {
+            /* Example of customizing the item buttons */
+            background-color: #ffffff; /* Background color for items */
+            color: #333333; /* Text color for items */
+            border: 1px solid #dddddd; /* Border for a subtle outline */
+        }
     </style>
 </head>
 
 <body class="m-0 font-sans antialiased font-normal  text-base leading-default bg-[skyblue]/75 text-slate-500 overflow-hidden">
-    
+
 <canvas id="canvas" class="absolute z-[-1] w-full block"></canvas>
     <!-- <div class="absolute bg-border-radius  z-[-2] w-full bg-[skyblue]/75 dark:hidden" style="height: 300px;"></div> -->
     <main class="lg:ml-auto h-full max-h-screen transition-all duration-200 ease-in-out rounded-xl ps  xl:px-5 px-2  pl-2 py-5">
 
-        <div id="app" class="sticky top-[1%] z-[2]">
-            <i class="top-0 left-0 fas fa-bars fixed text-gray-700   z-[100001] " @click="showMenu =false" v-if="showMenu"></i>
+        <div id="app" class="sticky top-[1%] z-[2] hidden">
+
             <!-- Side Bar Begins -->
             <aside  :class="{'trax':showMenu}" class="fixed translate-x-0 inset-y-0 z-[100002] flex-wrap items-center justify-between block  w-2/3 md:w-1/2 lg:w-1/3 xl:w-[17vw] xl:w-[15vw] xl:left-0 p-0 my-4 overflow-y-auto antialiased transition-transform duration-200 -translate-x-full bg-white border-0 dark:shadow-none dark:bg-blue-850 ease-nav-brand z-990 xl:ml-6 rounded-2xl    shadow-xl" aria-expanded="false">
-                <div class="h-[100%] relative">                    
+                <div class="h-[100%] relative">
                     <i @click="hideMenu()" class="absolute top-0 right-0 p-4 opacity-50 cursor-pointer fas fa-times dark:text-white text-slate-400" sidenav-close="" aria-hidden="true"></i>
-                    <a class="block px-8 py-6 m-0 text-sm whitespace-nowrap dark:text-white text-sky-700" href="/">                        
+                    <a class="block px-8 py-6 m-0 text-sm whitespace-nowrap dark:text-white text-sky-700" href="/">
                         <i class="fa-brands fa-medium inline h-full max-w-full transition-all duration-200 dark:hidden ease-nav-brand max-h-8 text-xl"></i>
                         <i class="fa-brands fa-medium hidden h-full max-w-full transition-all duration-200 dark:inline ease-nav-brand max-h-8  text-xl"></i>
                         <span class="ml-1 font-semibold transition-all duration-200 ease-nav-brand  text-xl">ERS</span>
                     </a>
                     <hr class="gradient-hr">
                     <ul class="flex flex-col pl-0 mb-0 mt-3">
-                        
-                        <li class="mt-0.5 w-full" >                                                         
-                        
+
+                        <li class="mt-0.5 w-full" >
+
                             <a  @click="toggleMenu($event, 'dashboard')" :class="{'bg-blue-500/12':(currentRoute=='Dashboard')}" class="hover:bg-slate-100 py-2 dark:text-white dark:opacity-80 text-md ease-nav-brand my-0 mx-2 flex items-center justify-between whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors" >
-                                <div class="mr-2 flex h-8 w-8 items-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">                                
+                                <div class="mr-2 flex h-8 w-8 items-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
                                     <i class="relative fa fa-gauge top-0 leading-normal text-sky-500 ni ni-tv-2 text-lg"></i>
                                     <span class="ml-3 duration-300 opacity-100 pointer-events-none ease">Dashboard</span>
                                 </div>
@@ -504,39 +509,41 @@ $routesWithPrimeVue = [
                             <Transition name="fade">
                                 <ul class="mb-2 pb-1" v-if="openMenus?.dashboard">
                                     <li class="p-1 hover:text-sky-500 hover:underline ml-[60px] text-sm">
-                                        <i class="fas  fa-minus-circle mr-2"></i><a href="/excutive-dashboard">Executive Dashboard</a></li>                                    
+                                        <i class="fas  fa-minus-circle mr-2"></i><a href="/accounts-dashboard">Accounts Dashboard</a></li>
                                     <li class="p-1 hover:text-sky-500 hover:underline ml-[60px] text-sm">
-                                        <i class="fas  fa-minus-circle mr-2"></i><a href="/ers-dashboard">Service Utilization</a></li>                                    
+                                        <i class="fas  fa-minus-circle mr-2"></i><a href="/excutive-dashboard">Executive Dashboard</a></li>
+                                    <li class="p-1 hover:text-sky-500 hover:underline ml-[60px] text-sm">
+                                        <i class="fas  fa-minus-circle mr-2"></i><a href="/ers-dashboard">Service Utilization</a></li>
                                 </ul>
                             </Transition>
                         </li>
                         <hr class="gradient-hr">
-                        <li class="mt-0.5 w-full" >                            
+                        <li class="mt-0.5 w-full" >
                             <a href="/" :class="{'bg-blue-500/12':(currentRoute=='Enrollee-Visits')}" class="hover:bg-slate-100 py-2 dark:text-white dark:opacity-80 text-md ease-nav-brand my-0 mx-2 flex items-center justify-between whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors" >
-                                <div class="mr-2 flex h-8 w-8 items-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">                                
-                                    <i class="relative fa-solid fa-hospital-user top-0 leading-normal text-sky-500 ni ni-tv-2 text-lg"></i>                                    
+                                <div class="mr-2 flex h-8 w-8 items-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
+                                    <i class="relative fa-solid fa-hospital-user top-0 leading-normal text-sky-500 ni ni-tv-2 text-lg"></i>
                                     <span class="ml-3 duration-300 opacity-100 pointer-events-none ease">Enrolee Visits</span>
                                 </div>
                             </a>
                         </li>
                         <hr class="gradient-hr">
-                        <li class="mt-0.5 w-full" >                            
+                        <li class="mt-0.5 w-full" >
                             <a href="/medicals" :class="{'bg-blue-500/12':(currentRoute=='Medicals')}" class="hover:bg-slate-100 py-2 dark:text-white dark:opacity-80 text-md ease-nav-brand my-0 mx-2 flex items-center justify-between whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors" >
-                                <div class="mr-2 flex h-8 w-8 items-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">                                
+                                <div class="mr-2 flex h-8 w-8 items-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
                                     <i class="relative fa-solid fa-money-bill-trend-up top-0 leading-normal text-sky-500 ni ni-tv-2 text-lg"></i>
-                                    <span class="ml-3 duration-300 opacity-100 pointer-events-none ease">Medicals Bill</span>                                
+                                    <span class="ml-3 duration-300 opacity-100 pointer-events-none ease">Medicals Bill</span>
                                 </div>
                             </a>
-                        </li>      
+                        </li>
                         <hr class="gradient-hr">
-                        <li class="mt-0.5 w-full" >                            
+                        <li class="mt-0.5 w-full" >
                             <a href="/users" :class="{'bg-blue-500/12':(currentRoute=='users')}" class="hover:bg-slate-100 py-2 dark:text-white dark:opacity-80 text-md ease-nav-brand my-0 mx-2 flex items-center justify-between whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors" >
-                                <div class="mr-2 flex h-8 w-8 items-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">                                
+                                <div class="mr-2 flex h-8 w-8 items-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
                                     <i class="relative fa-solid fa-users top-0 leading-normal text-sky-500 ni ni-tv-2 text-lg"></i>
-                                    <span class="ml-3 duration-300 opacity-100 pointer-events-none ease">Users</span>                                
+                                    <span class="ml-3 duration-300 opacity-100 pointer-events-none ease">Users</span>
                                 </div>
                             </a>
-                        </li>               
+                        </li>
                     </ul>
                     <div class="absolute bottom-[20px] inset-x-2">
                         <hr class="gradient-hr mb-5">
@@ -546,7 +553,7 @@ $routesWithPrimeVue = [
                         </div>
                     </div>
                 </div>
-                
+
             </aside>
             <!-- Side Bar Ends -->
             <!-- Top Bar Begins -->
@@ -554,6 +561,7 @@ $routesWithPrimeVue = [
                 <div class="block md:flex items-center justify-between w-full px-4 py-1 mx-auto flex-wrap-inherit">
                     <nav>
                         <ol class="flex flex-wrap pt-1 mr-12 bg-transparent rounded-lg sm:mr-16">
+                            <li  class="leading-normal text-md flex items-center px-2 cursor-pointer " @click="showMenu =false"><i class=" fas fa-bars text-gray-700   z-[100001] "  v-if="showMenu"></i></li>
                             <li class="leading-normal text-sm">
                                 <a class="text-dark opacity-50" href="javascript:;">Pages</a>
                             </li>
@@ -561,13 +569,13 @@ $routesWithPrimeVue = [
                         </ol>
                         <!-- <h6 class="mb-0 font-bold text-white capitalize"></h6> -->
                     </nav>
-                    <div class="flex items-center mt-2 grow sm:mt-0 sm:mr-6 md:mr-0 l g:flex lg:basis-auto">
-                        <div class="flex items-center md:ml-auto md:pr-4 mr-2">
+                    <div  class="grid items-center grid-cols-9 mt-2 grow sm:mt-0 sm:mr-6 md:mr-0 l g:flex lg:basis-auto">
+                        <div class="flex col-span-8  place-self-end items-center md:ml-auto md:pr-4 mr-2" v-if="!routeWithoutSearch.includes(currentRoute)">
                             <div class="relative flex flex-wrap items-stretch w-full transition-all rounded-lg ease">
                                 <span class="text-sm ease leading-5.6 absolute z-50 -ml-px flex h-full items-center whitespace-nowrap rounded-lg rounded-tr-none rounded-br-none border border-r-0 border-transparent bg-transparent py-2 px-2.5 text-center font-normal text-slate-500 transition-all">
                                     <i class="fas fa-calendar" aria-hidden="true"></i>
                                 </span>
-                                <input id="input" v-model="dateRange" class="pl-9 text-sm focus:shadow-primary-outline ease w-1/100 leading-5.6 relative -ml-px block min-w-0 flex-auto rounded-lg border border-solid border-gray-300 dark:bg-slate-850 dark:text-white bg-white bg-clip-padding py-2 pr-3 text-gray-700 transition-all placeholder:text-gray-500 focus:border-blue-500 focus:outline-none focus:transition-shadow" autocomplete="off">                                
+                                <input id="input" v-model="dateRange" class="pl-9 text-sm focus:shadow-primary-outline ease w-1/100 leading-5.6 relative -ml-px block min-w-0 flex-auto rounded-lg border border-solid border-gray-300 dark:bg-slate-850 dark:text-white bg-white bg-clip-padding py-2 pr-3 text-gray-700 transition-all placeholder:text-gray-500 focus:border-blue-500 focus:outline-none focus:transition-shadow" autocomplete="off">
                             </div>
                             <div class="relative flex flex-wrap items-stretch w-full transition-all rounded-lg ease mx-2">
                                 <span class="text-sm ease leading-5.6 absolute z-50 -ml-px flex h-full items-center whitespace-nowrap rounded-lg rounded-tr-none rounded-br-none border border-r-0 border-transparent bg-transparent py-2 px-2.5 text-center font-normal text-slate-500 transition-all">
@@ -576,7 +584,7 @@ $routesWithPrimeVue = [
                                 <input type="text" @input="sendWindowEvent($event)" class="pl-9 text-sm focus:shadow-primary-outline ease w-1/100 leading-5.6 relative -ml-px block min-w-0 flex-auto rounded-lg border border-solid border-gray-300 dark:bg-slate-850 dark:text-white bg-white bg-clip-padding py-2 pr-3 text-gray-700 transition-all placeholder:text-gray-500 focus:border-blue-500 focus:outline-none focus:transition-shadow" placeholder="Type here...">
                             </div>
                         </div>
-                        <ul class="flex flex-row justify-end pl-0 mb-0 list-none md-max:w-full">
+                        <ul :class="!routeWithoutSearch.includes(currentRoute)?'col-span-1':'col-span-9'" class="flex flex-row  place-self-end pl-0 mb-0 list-none md-max:w-full">
                             <li class="flex items-center">
                                 <a href="../pages/sign-in.html" class="flex px-0 py-2 font-semibold text-dark transition-all ease-nav-brand text-sm">
                                     <img src="{{asset('/logout.svg')}}" style="width: 14px; height:25px;" class="mr-1" />
@@ -606,27 +614,28 @@ $routesWithPrimeVue = [
     </main>
     <script>
         window.onload = function() {
-            const laravelCurrentRouteName = '<?= Route::currentRouteName(); ?>'; 
+            const laravelCurrentRouteName = '<?= Route::currentRouteName(); ?>';
 
             const {createApp} = Vue
             createApp({
                 data() {
                     return {
-                        datePickerResolver:0,                        
+                        datePickerResolver:0,
                         inceptionDate:true,
                         openMenus: {},
                         dateRange2:[],
                         test:true,
-                        showMenu: true, 
+                        routeWithoutSearch: <?= json_encode($routeWithoutSearch) ?>,
+                        showMenu: true,
                         currentRoute: laravelCurrentRouteName,
                     };
                 },
                 methods:{
-                    toggleMenu(event, menuName) {                        
-                        event.preventDefault();                      
+                    toggleMenu(event, menuName) {
+                        event.preventDefault();
                         this.openMenus[menuName] = !this.openMenus[menuName];
                     },
-                    hideMenu(){                                              
+                    hideMenu(){
                         this.showMenu =true
                     },
                     sendWindowEvent(event){
@@ -637,10 +646,10 @@ $routesWithPrimeVue = [
                         // Dispatch the event on the window object
                         window.dispatchEvent(customEvent);
                     },
-                },                
+                },
                 watch: {
                     datePickerResolver(newVal,oldVal){
-                      
+
                     },
                     dateRange2(newVal, oldVal) {
                     // Your logic when dateRange2 changes
@@ -674,7 +683,7 @@ $routesWithPrimeVue = [
                     firstDay: 0
                 };
                 let datepicker = new AirDatepicker('#input', {
-                    locale: localeEn,        
+                    locale: localeEn,
                     range:true,
                     multipleDatesSeparator: ' - ',
                     view: 'months',
@@ -682,23 +691,23 @@ $routesWithPrimeVue = [
                     dateFormat: 'yyyy-MM-dd',
                     onSelect:(formattedDate, date, inst) =>{
 
-                        if(formattedDate.formattedDate.length >1 && window.datePickerResolved){                                  
+                        if(formattedDate.formattedDate.length >1 && window.datePickerResolved){
                             const customEvent = new CustomEvent('custom-date-event', {
                                 detail: formattedDate.formattedDate, // Use newVal to access the updated value
                             });
                             // Dispatch the event on the window object
                             window.dispatchEvent(customEvent);
-                            this.dateRange2 = formattedDate.formattedDate                    
+                            this.dateRange2 = formattedDate.formattedDate
                             window.datePickerResolved = false
                             const customEvent1 = new CustomEvent('datepickerResolverEvent', {
-                                detail: window.datePickerResolver +=1, 
+                                detail: window.datePickerResolver +=1,
                             });
                             window.dispatchEvent(customEvent1);
-                                
+
                         }
                     },
                     buttons: [
-                    {                        
+                    {
                         content(dp) {
                             return "Current Year"
                         },
@@ -707,16 +716,16 @@ $routesWithPrimeVue = [
                             const currentYear = new Date().getFullYear();
                             window.inceptionDate = !window.inceptionDate
                             if (window.inceptionDate==false) {
-                                startDate = new Date(currentYear, 0, 1); 
-                                endDate = new Date(currentYear, 11, 31); 
+                                startDate = new Date(currentYear, 0, 1);
+                                endDate = new Date(currentYear, 11, 31);
                             } else {
-                                startDate = new Date('2019', 0, 1); 
-                                endDate =  new Date(currentYear, 11, 31); 
+                                startDate = new Date('2019', 0, 1);
+                                endDate =  new Date(currentYear, 11, 31);
                             }
-                            
+
 
                             dp.selectDate([startDate, endDate]);
-                            
+
                            dp.update({
                                 buttons:[{content:window.inceptionDate? 'Current Year': 'Clear'}]
                             })
@@ -724,11 +733,13 @@ $routesWithPrimeVue = [
                     }
                 ]
                 });
-                }
+
+                document.getElementById('app').classList.remove('hidden')
+            }
             }).mount('#app')
         }
     </script>
-    
+
     <style>
         .ps {
             overflow-y: scroll !important;
@@ -791,7 +802,7 @@ $routesWithPrimeVue = [
             transition-property: all;
             transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
             transition-duration: 150ms;
-        }       
+        }
     </style>
     <script src="{{asset('/grained.js')}}"></script>
 </body>

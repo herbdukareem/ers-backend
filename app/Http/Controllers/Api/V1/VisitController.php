@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 
 use App\Http\Controllers\Controller;
+use App\Models\ApiToken;
 use App\Models\Capitation;
 use App\Models\CapitationGroup;
 use App\Models\Enrolee;
@@ -15,6 +16,8 @@ use Carbon\Carbon;
 //use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 
 class VisitController extends Controller
 {
@@ -40,7 +43,7 @@ class VisitController extends Controller
             }else{
                 $dateRange[0] = Carbon::parse($dateRange[0])->format('Y-m-d');
                 $dateRange[1] = Carbon::parse($dateRange[1])->format('Y-m-d');
-            }            
+            }
             // If mode_of_enrolment is in enrolee_visits
             $external_db  = env('EX_DB_DATABASE');
             $internal_db  = env('DB_DATABASE');
@@ -57,25 +60,25 @@ class VisitController extends Controller
 
             // Counting distinct enrollees who have visits
             $totalEnrolleesAll = Enrolee::count();
-            $totalEnrollees = EnroleeVisit::whereBetween('enrolee_visits.date_of_visit',$dateRange)->get();                    
+            $totalEnrollees = EnroleeVisit::whereBetween('enrolee_visits.date_of_visit',$dateRange)->get();
             $totalDistinctEnrollees = $totalEnrollees->unique('nicare_id')->count();
             $totalReferrals = EnroleeVisit::where('referred', 'yes')
                     ->whereBetween('enrolee_visits.date_of_visit',$dateRange)
                     ->count();
-    
+
             $top10Services = EnroleeVisit::select('service_accessed',DB::raw('COUNT(*) as total'))
             ->whereBetween('date_of_visit', [$dateRange[0], $dateRange[1]])
             ->groupBy('service_accessed')
             ->orderByRaw('COUNT(*) DESC')
             ->limit(10)
-            ->get()->pluck('total','service');  
-            
+            ->get()->pluck('total','service');
+
             $top10Facilities = EnroleeVisit::select('facility_id',DB::raw('COUNT(*) as total'))
                 ->whereBetween('date_of_visit', [$dateRange[0], $dateRange[1]])
                 ->groupBy('facility_id')
                 ->orderByRaw('COUNT(*) DESC')
                 ->limit(10)
-                ->get()->pluck('total','facility');  
+                ->get()->pluck('total','facility');
 
             $newestFacilitiesEntries = EnroleeVisit::select('created_at','facility_id',DB::raw('COUNT(*) as total'))
                 ->whereBetween('date_of_visit', [$dateRange[0], $dateRange[1]])
@@ -86,12 +89,12 @@ class VisitController extends Controller
                 ->get()->map(function ($entry) {
                     $createdAt = Carbon::parse($entry->created_at);
                     $now = Carbon::now();
-                
+
                     $sinceAdded = $now->longAbsoluteDiffForHumans($createdAt);
                     if($sinceAdded != 'now'){
                         $sinceAdded .= ' ago';
                     }
-                
+
                     $entry->since_added = $sinceAdded;
                     return $entry;
                   });
@@ -101,7 +104,7 @@ class VisitController extends Controller
                 ->groupBy('ward')
                 ->orderByRaw('COUNT(*) DESC')
                 ->limit(10)
-                ->get()->pluck('total','ward_name');  
+                ->get()->pluck('total','ward_name');
 
             $visitsGroupedByFunding->map(function($item){
                 if($item->mode_of_enrolment == 'huwe'){
@@ -138,11 +141,11 @@ class VisitController extends Controller
         try {
             $external_db = env('EX_DB_DATABASE');
             $internal_db = env('DB_DATABASE');
-        
+
             $medicaBills = DB::table($internal_db . '.medical_bills as m')
                 ->join($external_db . '.capitations as c', 'c.id', 'm.capitation_id')
                 ->join($external_db . '.capitation_grouping as g', 'g.id', 'c.group_id');
-        
+
             $dateRange = $request->input('dateRange');
             if (empty($dateRange)) {
                     //$dateRange[0] = Carbon::now()->startOfMonth()->toDateString();
@@ -150,8 +153,8 @@ class VisitController extends Controller
                 $dateRange[0] = Carbon::parse('1995-01-01')->format('Y-m-d');
                 $dateRange[1] = Carbon::now()->format('Y-m-d');
             }
-        
-            $medicaBills = $medicaBills->selectRaw('CONCAT(SUBSTRING(g.month_full,1,3),", ", g.cap_year) as date, SUM(total_cap) as cap_total_amount, SUM(m.amount) as total_medicalbill_amount')                
+
+            $medicaBills = $medicaBills->selectRaw('CONCAT(SUBSTRING(g.month_full,1,3),", ", g.cap_year) as date, SUM(total_cap) as cap_total_amount, SUM(m.amount) as total_medicalbill_amount')
                 ->groupBy('g.cap_year','g.month_full')
                 ->orderBy('c.id')
                 ->whereBetween('m.month', $dateRange)
@@ -159,17 +162,17 @@ class VisitController extends Controller
             $totalMedical = $medicaBills->sum('total_medicalbill_amount');
             //$capitation = $medicaBills->sum('cap_total_amount');
             //$total = number_format($medicaBills->sum('cap_total_amount') - $medicaBills->sum('total_medicalbill_amount'),2,'.',',');
-        
+
             return response()->json([
                 'medicals' => $medicaBills,
                 'medical_bill_amount'=>$totalMedical,
                 //'capitation'=>$capitation,
                 //"prosit" => $total, // Assuming total_main is not needed
             ]);
-        } catch (\Exception $e) {            
+        } catch (\Exception $e) {
             return response()->json($e->getMessage(), 400);
         }
-        
+
     }
 
     public function encountersLastMonth()
@@ -222,17 +225,17 @@ class VisitController extends Controller
 
     public function topAccessedService(Request $request)
     {
-        extract($this->getChartRequestData($request));        
+        extract($this->getChartRequestData($request));
 
         $selectAs = '';
         $groupBy = '';
-      
-    
+
+
         if (!empty($zone)) {
             $selectAs = DB::raw("IF(l.zone = 1, 'Zone A', IF(l.zone = 2,'Zone B', 'Zone C')) as name");
             $groupBy = "name";
         }
-        
+
         if($queryBy == 'dateType'){
             switch ($dateType) {
                 case 'days':
@@ -248,7 +251,7 @@ class VisitController extends Controller
                     $selectAs = DB::raw("YEAR(date_of_visit) as name");
                     break;
                 default:
-                    break;                
+                    break;
             }
         }else if($queryBy == 'facility'){
             $selectAs = DB::raw("p.hcpname as name");
@@ -266,21 +269,21 @@ class VisitController extends Controller
                 return $query->where('service_accessed', $service_accessed_id);
             })->whereBetween('date_of_visit', [$dateRange[0], $dateRange[1]]);
 
-        // Applying location and zone filters       
+        // Applying location and zone filters
         $top10Services = $this->applyLocationFilters($top10Services, $location, $external_db,'enrolee_visits');
         $top10Services = $this->applyZoneFilter($zone, $top10Services);
 
         $top10Services = $top10Services->groupBy(DB::raw($groupBy))
                                     ->groupBy('service_accessed')
                                     ->groupBy('name')
-                                    ->orderByRaw('name')->get();                           
+                                    ->orderByRaw('name')->get();
         $transformedResult = $this->transformResults($top10Services, $dateType, $location, $zone);
         return response()->json($transformedResult);
     }
 
     public function enrolleeByCategory(Request $request)
     {
-        extract($this->getChartRequestData($request));        
+        extract($this->getChartRequestData($request));
 
         if($queryBy == 'dateType'){
             switch ($dateType) {
@@ -297,7 +300,7 @@ class VisitController extends Controller
                     $selectAs = DB::raw("YEAR(synced_datetime) as name");
                     break;
                 default:
-                    break;                
+                    break;
             }
         }else if($queryBy == 'facility'){
             $selectAs = DB::raw("p.hcpname as name");
@@ -306,20 +309,20 @@ class VisitController extends Controller
             $selectAs = DB::raw("w.ward as name");
             $groupBy = "w.ward";
         }
-        
-        // Building the initial query
-        $query = Enrolee::select(DB::raw('COUNT(vulnerability_status) AS total'),$selectAs)                        
-                        ->whereBetween('synced_datetime',$dateRange);                            
 
-        // Applying location and zone filters       
+        // Building the initial query
+        $query = Enrolee::select(DB::raw('COUNT(vulnerability_status) AS total'),$selectAs)
+                        ->whereBetween('synced_datetime',$dateRange);
+
+        // Applying location and zone filters
         $query = $this->applyLocationFilters($query, $location, $external_db,'tbl_enrolee');
         $query = $this->applyZoneFilter($zone, $query);
 
-        $result = $query->groupBy(DB::raw($groupBy))                                    
+        $result = $query->groupBy(DB::raw($groupBy))
                                     ->groupBy('name')
-                                    ->orderByRaw('name')->get();    
+                                    ->orderByRaw('name')->get();
         $transformedResult = $result->map(function($item) use ($dateType, $location, $zone) {
-                    $data = [                        
+                    $data = [
                         'total' => $item->total,
                     ];
                     if ($dateType && empty($location['lga_id']) && empty($zone)) {
@@ -349,8 +352,8 @@ class VisitController extends Controller
 
     private function getChartRequestData(Request $request) {
         $dateRange = $request->input('dateRange');
-        $dateType = $request->input('dateType'); 
-        $queryBy = $request->input('query_by'); 
+        $dateType = $request->input('dateType');
+        $queryBy = $request->input('query_by');
         $value = $request->input('value');
         $dateRange = $this->getDateRange($dateRange);
         $location = $request->input('location');
@@ -358,12 +361,12 @@ class VisitController extends Controller
             'lga_id'=> $location['lga']['id'] ?? null,
             'ward_id'=> $location['ward']['id'] ?? null
         ];
-        
+
         $zone = $request->input('zone');
         $external_db  = env('EX_DB_DATABASE');
-        
+
         return compact('dateRange', 'dateType', 'value', 'location', 'zone', 'external_db', 'queryBy');
-    }    
+    }
 
     private function applyLocationFilters($query, $location, $external_db, $table_name) {
         $query = $query->join("$external_db.lga as l", $table_name.'.lga', '=', 'l.id')
@@ -372,22 +375,22 @@ class VisitController extends Controller
         if (!empty($location['lga_id'])) {
             $query = $query->where('l.id', $location['lga_id']);
         }
-    
-        
+
+
         if (!empty($location['ward_id'])) {
             $query = $query->where('w.id', $location['ward_id']);
         }
-    
+
         return $query;
     }
-    
+
     private function applyZoneFilter($zone, $query) {
         if (!empty($zone)) {
             $query = $query->where('l.zone', $zone);
-        }    
+        }
         return $query;
     }
-    
+
     private function dateResolver($date, $dateType){
         switch ($dateType) {
             case 'days':
@@ -412,7 +415,7 @@ class VisitController extends Controller
         }else{
             $dateRange[0] = Carbon::parse($dateRange[0])->format('Y-m-d');
             $dateRange[1] = Carbon::parse($dateRange[1])->format('Y-m-d');
-        }            
+        }
         return $dateRange;
     }
 
@@ -421,7 +424,7 @@ class VisitController extends Controller
         try {
             $dateRange = $request->input('dateRange');
             $dateRange = $this->getDateRange($dateRange);
-           
+
             // Counting distinct enrollees who have visits
             // If mode_of_enrolment is in enrolee_visits
             $external_db  = env('EX_DB_DATABASE');
@@ -457,10 +460,10 @@ class VisitController extends Controller
                 'Formal',
                 'TiShip'
             ]);
-                       
+
             $existingSchemes = $EnrolleeByScheme->pluck('mode_of_enrolment')->all();
             $schemes->each(function ($scheme) use (&$EnrolleeByScheme, $existingSchemes) {
-                if (!in_array($scheme, $existingSchemes)) {                    
+                if (!in_array($scheme, $existingSchemes)) {
                     $EnrolleeByScheme->push((object)[
                         'total' => 0,
                         'mode_of_enrolment' => $scheme,
@@ -474,37 +477,37 @@ class VisitController extends Controller
             ->groupBy($external_db.'.tbl_enrolee.mode_of_enrolment')
             ->whereBetween('enrolee_visits.date_of_visit',$dateRange)
             ->get();
-            
+
             $visitsGroupedBySex =EnroleeVisit::select('sex', DB::raw('COUNT(*) as total_visits'))
             ->groupBy('sex')->whereBetween('date_of_visit',$dateRange)
             ->get()->pluck('sex','total_visits');
 
-            $totalEnrollees = EnroleeVisit::whereBetween('enrolee_visits.date_of_visit',$dateRange)->get();                    
+            $totalEnrollees = EnroleeVisit::whereBetween('enrolee_visits.date_of_visit',$dateRange)->get();
             $totalDistinctEnrollees = $totalEnrollees->unique('nicare_id')->count();
             $totalReferrals = EnroleeVisit::where('referred', 'yes')
                     ->whereBetween('enrolee_visits.date_of_visit',$dateRange)
                     ->count();
-    
+
             $top10Services = EnroleeVisit::select('service_accessed',DB::raw('COUNT(*) as total'))
             ->whereBetween('date_of_visit', [$dateRange[0], $dateRange[1]])
             ->groupBy('service_accessed')
             ->orderByRaw('COUNT(*) DESC')
             ->limit(10)
-            ->get()->pluck('total','service');  
-            
+            ->get()->pluck('total','service');
+
             $top10Facilities = EnroleeVisit::select('facility_id',DB::raw('COUNT(*) as total'))
                 ->whereBetween('date_of_visit', [$dateRange[0], $dateRange[1]])
                 ->groupBy('facility_id')
                 ->orderByRaw('COUNT(*) DESC')
                 ->limit(10)
-                ->get()->pluck('total','facility');  
+                ->get()->pluck('total','facility');
 
             $top10Wards = EnroleeVisit::select('ward',DB::raw('COUNT(*) as total'))
                 ->whereBetween('date_of_visit', [$dateRange[0], $dateRange[1]])
                 ->groupBy('ward')
                 ->orderByRaw('COUNT(*) DESC')
                 ->limit(10)
-                ->get()->pluck('total','ward_name');  
+                ->get()->pluck('total','ward_name');
 
             $visitsGroupedByFunding->map(function($item){
                 if($item->mode_of_enrolment == 'huwe'){
@@ -540,5 +543,47 @@ class VisitController extends Controller
             return response()->json($e->getMessage(), 400);
         }
 
+    }
+
+    public function accountAnalytics(Request $request){
+        try{
+            $sessionToken = $request->session()->getId();
+            ApiToken::create(['_token'=>$sessionToken]);
+
+            $api = env('ACC_API');
+            $response = Http::withHeaders(['_token' => $sessionToken])
+            ->get($api . '/analytics');
+
+            if ($response->status() == 200) {
+                $data = $response->body();
+            } else{
+                throw new \Exception($response->reason());
+            }
+
+            return $data;
+        }catch (\Exception $e) {
+            return response()->json($e->getMessage(), 400);
+        }
+    }
+
+    public function accountRequest(Request $request){
+        try{
+            $sessionToken = $request->session()->getId();
+            ApiToken::create(['_token'=>$sessionToken]);
+
+            $api = env('ACC_API');
+            $response = Http::withHeaders(['_token' => $sessionToken])
+                    ->{$request->method}($api . '/'. $request->route,$request->all());
+
+            if ($response->status() == 200) {
+                $data = $response->body();
+            } else{
+                throw new \Exception($response->reason());
+            }
+
+            return $data;
+        }catch (\Exception $e) {
+            return response()->json($e->getMessage(), 400);
+        }
     }
 }

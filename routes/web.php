@@ -27,20 +27,23 @@ Route::group(["middleware"=>['web','auth']],function(){
     })->name('Enrollee-Visits');
     Route::post('/assign_role', [UserController::class, 'assignRole']);
     Route::post('/assign_permission', [UserController::class, 'assignPermission']);
-    
+
     Route::get('/medicals', function () { return view('medicals'); })->name('Medicals');
     Route::get('/users', function () { return view('users'); })->name('users');
-    
+
     Route::get('/ers-dashboard', function () { return customView('ers_dashboard'); })->name('ers-dashboard');
     Route::get('/excutive-dashboard', function () { return customView('executive_dashboard'); })->name('executive_dashboard');
+    Route::get('/accounts-dashboard', function () { return customView('accounts_dashboard'); })->name('accounts_dashboard');
     Route::get('/ers-report', function () { return customView('ers_report'); })->name('ers_report');
-   
+
 });
 
 
-Route::prefix('v1')->group(function(){    
+Route::prefix('v1')->group(function(){
     Route::get('/reports/total-encounters', [VisitController::class, 'totalEncounters']);
-    
+    Route::post('/accounts/analytics', [VisitController::class, 'accountAnalytics']);
+    Route::post('/accounts', [VisitController::class, 'accountRequest']);
+
     Route::post('/executive/analytics', [VisitController::class, 'ExecutiveAnalysis']);
     Route::post('ers/reports/analytics', [VisitController::class, 'EnrolleesAnalysis']);
     Route::post('/reports/medical/analytics', [VisitController::class, 'medicalsBillsReport']);
@@ -48,7 +51,7 @@ Route::prefix('v1')->group(function(){
     Route::get('/reports/encounters-by-quarter/{year}', [VisitController::class, 'encountersByQuarter']);
     Route::post('/top_accessed_services', [VisitController::class, 'topAccessedService']);
     Route::post('/enrollee_by_category', [VisitController::class, 'enrolleeByCategory']);
-    
+
     Route::post('/ecounters', [EnroleeVisitController::class, 'index']);
 });
 
