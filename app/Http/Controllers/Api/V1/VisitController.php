@@ -554,7 +554,7 @@ class VisitController extends Controller
             $response = Http::withHeaders(['session_token' => $sessionToken])
             ->timeout(300)
             ->retry(3, 100)
-            ->get($api . '/analytics',);
+            ->get($api . '/analytics',['session_token' => $sessionToken]);
 
             if ($response->status() == 200) {
                 $data = $response->body();
@@ -571,13 +571,14 @@ class VisitController extends Controller
     public function accountRequest(Request $request){
         try{
             $sessionToken = $request->session()->getId();
-            ApiToken::create(['session_token'=>$sessionToken]);
-
+            ApiToken::create(['_token'=>$sessionToken]);
+            $data = $request->all();
+            $data['session_token'] = $sessionToken;
             $api = env('ACC_API');
             $response = Http::withHeaders(['session_token' => $sessionToken])
                         ->timeout(30)
                         ->retry(3, 300)
-                    ->{$request->method}($api . '/'. $request->route,$request->all());
+                    ->{$request->method}($api . '/'. $request->route,$data);
 
             if ($response->status() == 200) {
                 $data = $response->body();
