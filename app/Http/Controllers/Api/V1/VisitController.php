@@ -571,10 +571,10 @@ class VisitController extends Controller
     public function accountRequest(Request $request){
         try{
             $sessionToken = $request->session()->getId();
-            ApiToken::create(['_token'=>$sessionToken]);
+            ApiToken::create(['session_token'=>$sessionToken]);
 
             $api = env('ACC_API');
-            $response = Http::withHeaders(['_token' => $sessionToken])
+            $response = Http::withHeaders(['session_token' => $sessionToken])
                         ->timeout(30)
                         ->retry(3, 300)
                     ->{$request->method}($api . '/'. $request->route,$request->all());
