@@ -551,10 +551,10 @@ class VisitController extends Controller
             ApiToken::create(['_token'=>$sessionToken]);
 
             $api = env('ACC_API');
-            $response = Http::withHeaders(['_token' => $sessionToken])
+            $response = Http::withHeaders(['session_token' => $sessionToken])
             ->timeout(300)
             ->retry(3, 100)
-            ->get($api . '/analytics');
+            ->get($api . '/analytics',);
 
             if ($response->status() == 200) {
                 $data = $response->body();
