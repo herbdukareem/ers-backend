@@ -441,7 +441,7 @@ $routeWithoutSearch = [
         border-radius: 50%;
         display: inline-block;
         position: relative;
-        background: linear-gradient(0deg, rgba(45, 61, 180, 0.2) 33%, #fff 100%);
+        background: linear-gradient(0deg, rgba(45, 61, 180, .9) 33%, #fff 100%);
         box-sizing: border-box;
         animation: rotation 1s linear infinite;
         }
