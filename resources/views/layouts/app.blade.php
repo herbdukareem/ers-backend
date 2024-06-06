@@ -589,7 +589,7 @@ $routeWithoutSearch = [
                         </div>
                         <ul :class="!routeWithoutSearch.includes(currentRoute)?'col-span-1':'col-span-9'" class="flex flex-row absolute lg:static  place-self-end pl-0 mb-0 list-none md-max:w-full">
                             <li class="flex items-center">
-                                <a href="../pages/sign-in.html" class="flex px-0 py-2 font-semibold text-dark transition-all ease-nav-brand text-sm">
+                                <a href="/logout" class="flex px-0 py-2 font-semibold text-dark transition-all ease-nav-brand text-sm">
                                     <img src="{{asset('/logout.svg')}}" style="width: 14px; height:25px;" class="mr-1" />
                                     <span class="hidden sm:inline">Sign Out</span>
                                 </a>
