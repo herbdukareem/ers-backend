@@ -478,7 +478,10 @@ $routeWithoutSearch = [
 </head>
 
 <body class="m-0 font-sans antialiased font-normal  text-base leading-default bg-[skyblue]/75 text-slate-500 overflow-hidden">
-
+<div id="mainLoader" class="bg-sky-500/70 inset-0 fixed z-[100001] flex flex-col justify-center items-center   overflow-y-auto h-full w-ful" >
+            <span class="loader"></span>
+            <span class="text-2xl">loading</span>
+</div>
 <canvas id="canvas" class="absolute z-[-1] w-full block"></canvas>
     <!-- <div class="absolute bg-border-radius  z-[-2] w-full bg-[skyblue]/75 dark:hidden" style="height: 300px;"></div> -->
     <main class="lg:ml-auto h-full max-h-screen transition-all duration-200 ease-in-out rounded-xl ps  xl:px-5 px-2  pl-2 py-5">
@@ -736,6 +739,10 @@ $routeWithoutSearch = [
             }
             }).mount('#app')
         }
+
+        $(document).ready(function(){
+            $("#mainLoader").hide();
+        });
     </script>
 
     <style>
