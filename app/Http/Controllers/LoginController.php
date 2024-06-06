@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
-    protected $redirectTo = RouteServiceProvider::HOME;
+    protected $redirectTo ='/excutive-dashboard';
 
     public function __construct()
     {

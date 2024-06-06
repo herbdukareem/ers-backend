@@ -429,7 +429,7 @@ $routeWithoutSearch = [
             font-family: 'Nunito', sans-serif;
         }
         .trax {
-            transform: translateX(-450px) !important;
+            transform: translateX(-588px) !important;
         }
 
         .fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
@@ -569,29 +569,29 @@ $routeWithoutSearch = [
                         </ol>
                         <!-- <h6 class="mb-0 font-bold text-white capitalize"></h6> -->
                     </nav>
-                    <div  class="grid items-center grid-cols-9 mt-2 grow sm:mt-0 sm:mr-6 md:mr-0 l g:flex lg:basis-auto">
-                        <div class="flex col-span-8  place-self-end items-center md:ml-auto md:pr-4 mr-2" v-if="!routeWithoutSearch.includes(currentRoute)">
+                    <div  class="grid items-center place-content-center md:grid-cols-9 grid-cols-1 mt-2 grow sm:mt-0 sm:mr-6 md:mr-0 l g:flex lg:basis-auto">
+                        <div class="sm:flex grid grid-cols-1 gap-2 col-span-8 mx-auto  place-self-end items-center md:ml-auto md:pr-4 lg:mr-2" v-if="!routeWithoutSearch.includes(currentRoute)">
                             <div class="relative flex flex-wrap items-stretch w-full transition-all rounded-lg ease">
                                 <span class="text-sm ease leading-5.6 absolute z-50 -ml-px flex h-full items-center whitespace-nowrap rounded-lg rounded-tr-none rounded-br-none border border-r-0 border-transparent bg-transparent py-2 px-2.5 text-center font-normal text-slate-500 transition-all">
                                     <i class="fas fa-calendar" aria-hidden="true"></i>
                                 </span>
                                 <input id="input" v-model="dateRange" class="pl-9 text-sm focus:shadow-primary-outline ease w-1/100 leading-5.6 relative -ml-px block min-w-0 flex-auto rounded-lg border border-solid border-gray-300 dark:bg-slate-850 dark:text-white bg-white bg-clip-padding py-2 pr-3 text-gray-700 transition-all placeholder:text-gray-500 focus:border-blue-500 focus:outline-none focus:transition-shadow" autocomplete="off">
                             </div>
-                            <div class="relative flex flex-wrap items-stretch w-full transition-all rounded-lg ease mx-2">
+                            <div class="relative flex flex-wrap items-stretch w-full transition-all rounded-lg ease md:mx-2">
                                 <span class="text-sm ease leading-5.6 absolute z-50 -ml-px flex h-full items-center whitespace-nowrap rounded-lg rounded-tr-none rounded-br-none border border-r-0 border-transparent bg-transparent py-2 px-2.5 text-center font-normal text-slate-500 transition-all">
                                     <i class="fas fa-search" aria-hidden="true"></i>
                                 </span>
                                 <input type="text" @input="sendWindowEvent($event)" class="pl-9 text-sm focus:shadow-primary-outline ease w-1/100 leading-5.6 relative -ml-px block min-w-0 flex-auto rounded-lg border border-solid border-gray-300 dark:bg-slate-850 dark:text-white bg-white bg-clip-padding py-2 pr-3 text-gray-700 transition-all placeholder:text-gray-500 focus:border-blue-500 focus:outline-none focus:transition-shadow" placeholder="Type here...">
                             </div>
                         </div>
-                        <ul :class="!routeWithoutSearch.includes(currentRoute)?'col-span-1':'col-span-9'" class="flex flex-row  place-self-end pl-0 mb-0 list-none md-max:w-full">
+                        <ul :class="!routeWithoutSearch.includes(currentRoute)?'col-span-1':'col-span-9'" class="flex flex-row absolute lg:static  place-self-end pl-0 mb-0 list-none md-max:w-full">
                             <li class="flex items-center">
                                 <a href="../pages/sign-in.html" class="flex px-0 py-2 font-semibold text-dark transition-all ease-nav-brand text-sm">
                                     <img src="{{asset('/logout.svg')}}" style="width: 14px; height:25px;" class="mr-1" />
                                     <span class="hidden sm:inline">Sign Out</span>
                                 </a>
                             </li>
-                            <li class="flex items-center pl-4 xl:hidden">
+                            <li class="flex items-center pl-4 hidden">
                                 <a @click="showMenu = !showMenu" class="block p-0 transition-all ease-nav-brand text-sm dark:text-white" sidenav-trigger="">
                                     <div class="w-6 h-6 flex flex-col justify-between" style="height:15px;">
                                         <span class="h-0.5 w-full bg-slate-500 rounded-sm"></span>
@@ -600,8 +600,6 @@ $routeWithoutSearch = [
                                     </div>
                                 </a>
                             </li>
-
-
                         </ul>
                     </div>
                 </div>

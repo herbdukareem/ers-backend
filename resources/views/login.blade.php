@@ -403,7 +403,7 @@ use Illuminate\Support\Facades\Route;
             font-family: 'Nunito', sans-serif;
         }
         .trax {
-            transform: translateX(-310px) !important;
+            transform: translateX(-488px) !important;
         }
         
 .fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
@@ -443,9 +443,9 @@ use Illuminate\Support\Facades\Route;
     <section class="flex items-center justify-center h-full">
         <!-- Container starts -->
         <div class="container mx-auto p-4">
-            <div class="grid grid-cols-3 ">
+            <div class="grid lg:grid-cols-3 grid-cols-1 ">
                 <div></div>
-                <div class="w-full">
+                <div class="w-full md:px-0 px-5">
                     <!-- Authentication card start -->
 
                     <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" action="{{ route('login-post')}}" method="POST">
