@@ -93,7 +93,7 @@ $users = json_encode(User::paginate(100));
 
 
         <transition name="fade">
-        <div v-if="loading" class="bg-sky-500/70 inset-0 fixed z-[100001] flex flex-col justify-center items-center   overflow-y-auto h-full w-ful" >
+        <div v-if="loading" class="bg-sky-500/70 inset-0 fixed z-[100001] flex flex-col justify-center items-center   overflow-y-auto h-full w-full" >
             <span class="loader"></span>
             <span class="text-2xl">loading</span>
         </div>

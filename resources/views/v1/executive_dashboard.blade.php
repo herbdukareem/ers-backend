@@ -30,7 +30,7 @@ $facilities = Facility::all();
             </div>
             <div class="cgradient" ></div>
             <div class="grid grid-cols-1" :class="`sm:grid-cols-${encountersAnalytics?.enrollee_by_scheme?.length}`">
-                <div class="text-center" v-for="(scheme,i) in encountersAnalytics?.enrollee_by_scheme">
+                <div class="text-center md:block md:px-0 px-3 flex justify-between" v-for="(scheme,i) in encountersAnalytics?.enrollee_by_scheme">
                     <span class="place-self-left text-sm">Total @{{scheme.mode_of_enrolment}}</span>
                     <h4>@{{formatNumber(scheme?.total)}}</h4>
                 </div>
@@ -43,13 +43,13 @@ $facilities = Facility::all();
             </div>
             <div class="cgradient" ></div>
             <div class="grid sm:grid-cols-2 grid-cols-1">
-                <div class="place-self-center">
+                <div class="md:place-self-center md:block md:px-0 px-3 flex justify-between">                    
                     <span class="place-self-left text-sm">Medical Bills</span>
                     <h4>@{{formatCurrency(medicalAnalytics?.medical_bill_amount)}}
-                    <span class="ml-2">(@{{computePerc(medicalAnalytics?.medical_bill_amount, encountersAnalytics?.capitation)}})</span>
+                        <span class="ml-2">(@{{computePerc(medicalAnalytics?.medical_bill_amount, encountersAnalytics?.capitation)}})</span>
                     </h4>
                 </div>
-                <div  class="place-self-center">
+                <div  class="md:place-self-center md:block md:px-0 px-3 flex justify-between">                
                     <span class="place-self-left text-sm text-right">Cap Proceeds</span>
                     <h4 class="text-right">@{{ formatCurrency(encountersAnalytics?.capitation - medicalAnalytics?.medical_bill_amount)}}
                     <span class="ml-2">(@{{computePerc(encountersAnalytics?.capitation - medicalAnalytics?.medical_bill_amount, encountersAnalytics?.capitation)}})</span>
@@ -108,7 +108,7 @@ $facilities = Facility::all();
     </div>
   </transition>
   <transition name="fade">
-  <div v-if="loading" class="bg-sky-500/70 inset-0 fixed z-[100001] flex flex-col justify-center items-center   overflow-y-auto h-full w-ful" >
+  <div v-if="loading" class="bg-sky-500/70 inset-0 fixed z-[100001] flex flex-col justify-center items-center   overflow-y-auto h-full w-full" >
       <span class="loader"></span>
       <span class="text-2xl">loading</span>
   </div>
