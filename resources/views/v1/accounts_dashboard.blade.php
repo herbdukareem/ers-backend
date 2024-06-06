@@ -20,7 +20,7 @@ $facilities = Facility::all();
             </select>
         </div>
         <div>
-            <label class="w-full">Fund Category:</label>
+            <label class="w-full" style="white-space:nowrap;">Fund Category:</label>
             <select v-model="selected_fund_category" @change="handlefundCategory" class="w-full text-[black]">
                 <option v-for="fnd in fund_categories?.[selected_scheme?.id]" :value="fnd">@{{ fnd }}</option>
             </select>
