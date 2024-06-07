@@ -29,8 +29,8 @@ $facilities = Facility::all();
                 <h4 class=" font-bold text-xl place-self-center">@{{encountersAnalytics?.totalEnrolleesAll}}</h4>
             </div>
             <div class="cgradient" ></div>
-            <div class="grid grid-cols-1" :class="`sm:grid-cols-${encountersAnalytics?.enrollee_by_scheme?.length}`">
-                <div class="text-center md:block md:px-0 px-3 flex justify-between" v-for="(scheme,i) in encountersAnalytics?.enrollee_by_scheme">
+            <div class="lg:flex grid-cols-1 overflow-y-auto" :class="`sm:grid-cols-${encountersAnalytics?.enrollee_by_scheme?.length}`">
+                <div class="text-center lg:block md:px-0 min-w-[150px] px-3 flex justify-between" v-for="(scheme,i) in encountersAnalytics?.enrollee_by_scheme">
                     <span class="place-self-left text-sm">Total @{{scheme.mode_of_enrolment}}</span>
                     <h4>@{{formatNumber(scheme?.total)}}</h4>
                 </div>

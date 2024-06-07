@@ -433,12 +433,19 @@ class VisitController extends Controller
             $capitation = floatval(DB::select(DB::raw($sql))[0]->total ??0);
             $totalEnrolleesAll = Enrolee::count();
 
+            //bhfcpf : mode_of_enrolment= huwe and benefactor = 2
+            /* gac : mode_of_enrolment= huwe and benefactor = 4
+            gac : mode_of_enrolment= huwe and benefactor = 4 */        
 
-            $EnrolleeByScheme = Enrolee::selectRaw("COUNT(mode_of_enrolment) AS total, IF(mode_of_enrolment='huwe','BHCPF',IF(mode_of_enrolment='Premium','Informal','Others')) AS mode_of_enrolment")
-            ->groupBy('mode_of_enrolment')
-            ->whereBetween('synced_datetime',$dateRange)
+            $EnrolleeByScheme = Enrolee::selectRaw("
+                    SUM(CASE WHEN mode_of_enrolment LIKE 'Premium' THEN 1 ELSE 0 END) AS Informal,
+                    SUM(CASE WHEN mode_of_enrolment LIKE 'huwe' AND funding NOT IN ('gac', 'cf', 'unicef') THEN 1 ELSE 0 END) AS BHCPF,
+                    SUM(CASE WHEN mode_of_enrolment LIKE 'huwe' AND benefactor = 4 AND funding = 'gac' THEN 1 ELSE 0 END) AS GAC,
+                    SUM(CASE WHEN mode_of_enrolment LIKE 'huwe' AND funding = 'cf' THEN 1 ELSE 0 END) AS Counterpart,
+                    SUM(CASE WHEN mode_of_enrolment LIKE 'huwe' AND benefactor = 8 THEN 1 ELSE 0 END) AS UNICEF
+                ")->whereBetween('synced_datetime',$dateRange)
             ->get();
-
+            
             $EnrolleeByVulnerabilityStatus = Enrolee::selectRaw('COUNT(vulnerability_status) AS total, vulnerability_status')
             ->groupBy('vulnerability_status')
             ->whereBetween('synced_datetime',$dateRange)
@@ -455,13 +462,26 @@ class VisitController extends Controller
             ->get()->pluck('sex', 'total');
 
             $EnrolleeByZone = DB::select(DB::raw("SELECT z.zone, COUNT(z.zone) as total FROM $external_db.tbl_enrolee e JOIN $external_db.lga on lga.id = e.lga JOIN $external_db.tbl_zones z on z.id = lga.zone GROUP BY z.zone"));
-            $schemes = collect([
+            $schemes = [
                 'Informal',
                 'BHCPF',
-                'TISHIP'
-            ]);
-
-            $existingSchemes = $EnrolleeByScheme->pluck('mode_of_enrolment')->all();
+                'Counterpart',
+                'TISHIP',
+                'GAC',
+                'UNICEF'
+            ];
+            
+            //$existingSchemes =array_keys(->toArray());
+            $EnrolleeBySchemes = [];
+            foreach($EnrolleeByScheme->first()->toArray() as $key =>$value ){       
+                if (in_array($key,$schemes)) {         
+                    $EnrolleeBySchemes[] =[
+                        'total' => $value,
+                        'mode_of_enrolment' => $key
+                    ];
+                }
+            }
+            /* 
             $schemes->each(function ($scheme) use (&$EnrolleeByScheme, $existingSchemes) {
                 if (!in_array($scheme, $existingSchemes)) {
                     $EnrolleeByScheme->push((object)[
@@ -469,7 +489,7 @@ class VisitController extends Controller
                         'mode_of_enrolment' => $scheme,
                     ]);
                 }
-            });
+            }); */
 
             $visitsGroupedByFunding = DB::table( $internal_db.'.enrolee_visits')
             ->join($external_db.'.tbl_enrolee', 'enrolee_visits.nicare_id', '=', $external_db.'.tbl_enrolee.enrolment_number')
@@ -522,7 +542,7 @@ class VisitController extends Controller
             });
 
             return response()->json([
-                "enrollee_by_scheme"=>$EnrolleeByScheme,
+                "enrollee_by_scheme"=>$EnrolleeBySchemes,
                 'visits_by_mode_of_enrolment' => $visitsGroupedByFunding,
                 'vulnerability_status'=>$EnrolleeByVulnerabilityStatus,
                 'occupations'=>$EnrolleeByOccupation,
