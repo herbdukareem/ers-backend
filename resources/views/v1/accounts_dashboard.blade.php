@@ -15,7 +15,7 @@ $facilities = Facility::all();
     <div class="grid grid-cols-4 gap-4 mb-4">
         <div>
             <label class="w-full">Programme:</label>
-            <select v-model="selected_scheme" class="w-full text-[black]">
+            <select v-model="selected_scheme" @change="handlefundCategory"  class="w-full text-[black]">
                 <option v-for="sch in accountAnalytics?.scheme_income" :value="sch">@{{sch.name}}</option>
             </select>
         </div>
@@ -490,9 +490,7 @@ $facilities = Facility::all();
                 this.calculateTotalExpenditureAmount()
             },
             handlefundCategory(){
-
                 const scheme = this.selected_scheme.categories[this.selected_fund_category];
-
                 const incomes = scheme.map(item => parseInt(item.income));
                 const balances = scheme.map(item => item.balance);
                 const categories = scheme.map(item => item.name);

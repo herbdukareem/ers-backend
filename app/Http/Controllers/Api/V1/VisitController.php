@@ -434,7 +434,7 @@ class VisitController extends Controller
             $totalEnrolleesAll = Enrolee::count();
 
 
-            $EnrolleeByScheme = Enrolee::selectRaw("COUNT(mode_of_enrolment) AS total, IF(mode_of_enrolment='huwe','Formal',IF(mode_of_enrolment='Premium','Informal','Others')) AS mode_of_enrolment")
+            $EnrolleeByScheme = Enrolee::selectRaw("COUNT(mode_of_enrolment) AS total, IF(mode_of_enrolment='huwe','BHCPF',IF(mode_of_enrolment='Premium','Informal','Others')) AS mode_of_enrolment")
             ->groupBy('mode_of_enrolment')
             ->whereBetween('synced_datetime',$dateRange)
             ->get();
@@ -457,8 +457,8 @@ class VisitController extends Controller
             $EnrolleeByZone = DB::select(DB::raw("SELECT z.zone, COUNT(z.zone) as total FROM $external_db.tbl_enrolee e JOIN $external_db.lga on lga.id = e.lga JOIN $external_db.tbl_zones z on z.id = lga.zone GROUP BY z.zone"));
             $schemes = collect([
                 'Informal',
-                'Formal',
-                'TiShip'
+                'BHCPF',
+                'TISHIP'
             ]);
 
             $existingSchemes = $EnrolleeByScheme->pluck('mode_of_enrolment')->all();
