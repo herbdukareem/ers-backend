@@ -41,11 +41,11 @@ class LoginController extends Controller
 
             // Optional: Update session or perform other post-login actions
 
-            return redirect()->intended($this->redirectPath());
+            return redirect()->intended('/excutive-dashboard');
         }        
         return back()->withErrors([
-            "nicare_code"=>'invalid credentials'
-        ]);
+            'nicare_code' => 'Invalid credentials',
+        ])->withInput($request->only('nicare_code', 'remember'));
     }
 
     protected function redirectPath()
