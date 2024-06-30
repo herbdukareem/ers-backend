@@ -36,7 +36,7 @@ $facilities = Facility::all();
                 </div>
             </div>
         </div>
-        <div class="chart-container px-3 py-2 grid grid-cols-2  place-content-center gap-3">
+        <div class="chart-container md:col-span-2 px-3 py-2 grid grid-cols-1  place-content-center gap-3">
             <div class="grid sm:grid-cols-2 grid-cols-1">
                 <span class="place-self-center">Total Capitation:</span>
                 <h4 class=" font-bold text-xl place-self-center">@{{formatCurrency(encountersAnalytics?.capitation)}}</h4>
@@ -58,7 +58,7 @@ $facilities = Facility::all();
             </div>
         </div>
 
-        <div class="chart-container px-3 py-2 grid grid-cols-2  place-content-center gap-3">
+        <div class="chart-container md:col-span-2 px-3 py-2 grid grid-cols-1  place-content-center gap-3">
             <div class="grid sm:grid-cols-2 grid-cols-1">
                 <span class="place-self-center">Total Encounter Visits:</span>
                 <h4 class=" font-bold text-xl place-self-center">@{{encountersAnalytics?.total_visits}}</h4>
