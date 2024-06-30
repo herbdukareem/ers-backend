@@ -444,9 +444,9 @@ class VisitController extends Controller
                     SUM(CASE WHEN mode_of_enrolment LIKE 'huwe' AND benefactor = 4 AND funding = 'gac' THEN 1 ELSE 0 END) AS GAC,
                     SUM(CASE WHEN mode_of_enrolment LIKE 'huwe' AND funding = 'cf' THEN 1 ELSE 0 END) AS Counterpart,
                     SUM(CASE WHEN mode_of_enrolment LIKE 'huwe' AND benefactor = 8 THEN 1 ELSE 0 END) AS UNICEF
-                ")->whereBetween('synced_datetime',$dateRange)
+                ")->whereBetween('synced_datetime',$dateRange)->where('status','1')
             ->get();
-            $enrolleeFormalCount = EnroleeFormal::whereNotNull('lga')->count();
+            $enrolleeFormalCount = EnroleeFormal::whereNotNull('lga')->where('status','1')->count();
             
             $EnrolleeByVulnerabilityStatus = Enrolee::selectRaw('COUNT(vulnerability_status) AS total, vulnerability_status')
             ->groupBy('vulnerability_status')
