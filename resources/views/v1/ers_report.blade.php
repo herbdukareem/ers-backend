@@ -48,7 +48,7 @@ $facilities = Facility::all();
             <p-column field="phone" header="Phone Number" style="width:6%"></p-column>
             <p-column field="date_of_visit" header="Date of Visit" ></p-column>
             <template #groupfooter="slotProps">
-                <div class="flex justify-content-end font-bold w-full">Total Visits: @{{slotProps.data.visit_count}}</div>
+                <div class="flex justify-content-end font-bold w-full">Total Encounter Visits: @{{slotProps.data.visit_count}}</div>
             </template>
         </p-dataTable>
 </div>
