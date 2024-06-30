@@ -8,6 +8,7 @@ use App\Models\ApiToken;
 use App\Models\Capitation;
 use App\Models\CapitationGroup;
 use App\Models\Enrolee;
+use App\Models\EnroleeFormal;
 use App\Models\EnroleeVisit;
 use App\Models\Lga;
 use App\Models\MedicalBill;
@@ -445,6 +446,7 @@ class VisitController extends Controller
                     SUM(CASE WHEN mode_of_enrolment LIKE 'huwe' AND benefactor = 8 THEN 1 ELSE 0 END) AS UNICEF
                 ")->whereBetween('synced_datetime',$dateRange)
             ->get();
+            $enrolleeFormalCount = EnroleeFormal::whereNotNull('lga')->count();
             
             $EnrolleeByVulnerabilityStatus = Enrolee::selectRaw('COUNT(vulnerability_status) AS total, vulnerability_status')
             ->groupBy('vulnerability_status')
@@ -473,6 +475,11 @@ class VisitController extends Controller
             
             //$existingSchemes =array_keys(->toArray());
             $EnrolleeBySchemes = [];
+            $EnrolleeBySchemes[] = [
+                'total' => $enrolleeFormalCount,
+                'mode_of_enrolment' => "Formal"
+            ];
+        
             foreach($EnrolleeByScheme->first()->toArray() as $key =>$value ){       
                 if (in_array($key,$schemes)) {         
                     $EnrolleeBySchemes[] =[
@@ -481,6 +488,7 @@ class VisitController extends Controller
                     ];
                 }
             }
+
             /* 
             $schemes->each(function ($scheme) use (&$EnrolleeByScheme, $existingSchemes) {
                 if (!in_array($scheme, $existingSchemes)) {
