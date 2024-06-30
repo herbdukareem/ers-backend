@@ -432,7 +432,7 @@ class VisitController extends Controller
             $internal_db  = env('DB_DATABASE');
             $sql = "SELECT SUM(total_cap) as total from $external_db.capitations c JOIN $external_db.capitation_grouping g ON g.id = c.group_id WHERE CONCAT(g.cap_year,'-',LPAD(g.month,2,'0'),'-','01') BETWEEN '$dateRange[0]' AND '$dateRange[1]'";
             $capitation = floatval(DB::select(DB::raw($sql))[0]->total ??0);
-            $totalEnrolleesAll = Enrolee::count();
+            
 
             //bhfcpf : mode_of_enrolment= huwe and benefactor = 2
             /* gac : mode_of_enrolment= huwe and benefactor = 4
@@ -444,7 +444,7 @@ class VisitController extends Controller
                     SUM(CASE WHEN mode_of_enrolment LIKE 'huwe' AND benefactor = 4 AND funding = 'gac' THEN 1 ELSE 0 END) AS GAC,
                     SUM(CASE WHEN mode_of_enrolment LIKE 'huwe' AND funding = 'cf' THEN 1 ELSE 0 END) AS Counterpart,
                     SUM(CASE WHEN mode_of_enrolment LIKE 'huwe' AND benefactor = 8 THEN 1 ELSE 0 END) AS UNICEF
-                ")->whereBetween('synced_datetime',$dateRange)
+                ")->whereBetween('synced_datetime',$dateRange)->where('status','1')
             ->get();
             $enrolleeFormalCount = EnroleeFormal::whereNotNull('lga')->where('status','1')->count();
             
@@ -479,8 +479,9 @@ class VisitController extends Controller
                 'total' => $enrolleeFormalCount,
                 'mode_of_enrolment' => "Formal"
             ];
-        
-            foreach($EnrolleeByScheme->first()->toArray() as $key =>$value ){       
+            $totalEnrolleesAll = $enrolleeFormalCount;
+            foreach($EnrolleeByScheme->first()->toArray() as $key =>$value ){   
+                $totalEnrolleesAll +=  $value;
                 if (in_array($key,$schemes)) {         
                     $EnrolleeBySchemes[] =[
                         'total' => $value,
