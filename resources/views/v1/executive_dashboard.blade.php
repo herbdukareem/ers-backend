@@ -45,7 +45,7 @@ $facilities = Facility::all();
             <div class="grid sm:grid-cols-2 grid-cols-1">
                 <div class="md:place-self-center md:block md:px-0 px-3 flex justify-between">                    
                     <span class="place-self-left text-sm">Medical Bills</span>
-                    <h4>@{{formatCurrency(medicalAnalytics?.capitation * 0.6)}}
+                    <h4>@{{ formatCurrency(encountersAnalytics?.capitation * 0.6)}}
                     <span class="ml-2">(@{{computePerc(medicalAnalytics?.medical_bill_amount, encountersAnalytics?.capitation)}})</span>
                         <!-- <span class="ml-2">(@{{computePerc(medicalAnalytics?.medical_bill_amount, encountersAnalytics?.capitation)}})</span> -->
                     </h4>
