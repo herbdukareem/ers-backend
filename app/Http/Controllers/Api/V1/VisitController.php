@@ -432,7 +432,7 @@ class VisitController extends Controller
             $internal_db  = env('DB_DATABASE');
             $sql = "SELECT SUM(total_cap) as total from $external_db.capitations c JOIN $external_db.capitation_grouping g ON g.id = c.group_id WHERE CONCAT(g.cap_year,'-',LPAD(g.month,2,'0'),'-','01') BETWEEN '$dateRange[0]' AND '$dateRange[1]'";
             $capitation = floatval(DB::select(DB::raw($sql))[0]->total ??0);
-            $totalEnrolleesAll = Enrolee::count();
+            
 
             //bhfcpf : mode_of_enrolment= huwe and benefactor = 2
             /* gac : mode_of_enrolment= huwe and benefactor = 4
@@ -479,8 +479,9 @@ class VisitController extends Controller
                 'total' => $enrolleeFormalCount,
                 'mode_of_enrolment' => "Formal"
             ];
-        
-            foreach($EnrolleeByScheme->first()->toArray() as $key =>$value ){       
+            $totalEnrolleesAll = $enrolleeFormalCount;
+            foreach($EnrolleeByScheme->first()->toArray() as $key =>$value ){   
+                $totalEnrolleesAll +=  $value;
                 if (in_array($key,$schemes)) {         
                     $EnrolleeBySchemes[] =[
                         'total' => $value,
