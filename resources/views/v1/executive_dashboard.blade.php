@@ -45,14 +45,15 @@ $facilities = Facility::all();
             <div class="grid sm:grid-cols-2 grid-cols-1">
                 <div class="md:place-self-center md:block md:px-0 px-3 flex justify-between">                    
                     <span class="place-self-left text-sm">Medical Bills</span>
-                    <h4>@{{formatCurrency(medicalAnalytics?.medical_bill_amount)}}
-                        <span class="ml-2">(@{{computePerc(medicalAnalytics?.medical_bill_amount, encountersAnalytics?.capitation)}})</span>
+                    <h4>@{{formatCurrency(medicalAnalytics?.capitation * 0.6)}}
+                    <span class="ml-2">(@{{computePerc(medicalAnalytics?.medical_bill_amount, encountersAnalytics?.capitation)}})</span>
+                        <!-- <span class="ml-2">(@{{computePerc(medicalAnalytics?.medical_bill_amount, encountersAnalytics?.capitation)}})</span> -->
                     </h4>
                 </div>
                 <div  class="md:place-self-center md:block md:px-0 px-3 flex justify-between">                
                     <span class="place-self-left text-sm text-right">Cap Proceeds</span>
-                    <h4 class="text-right">@{{ formatCurrency(encountersAnalytics?.capitation - medicalAnalytics?.medical_bill_amount)}}
-                    <span class="ml-2">(@{{computePerc(encountersAnalytics?.capitation - medicalAnalytics?.medical_bill_amount, encountersAnalytics?.capitation)}})</span>
+                    <h4 class="text-right">@{{ formatCurrency(encountersAnalytics?.capitation * 0.4)}}
+                    <!-- <span class="ml-2">(@{{computePerc(encountersAnalytics?.capitation - medicalAnalytics?.medical_bill_amount, encountersAnalytics?.capitation)}})</span> -->
                     </h4>
                 </div>
             </div>
@@ -525,7 +526,7 @@ $facilities = Facility::all();
                     const capTotalAmountData = this.medicalAnalytics.medicals.map(item => parseInt(item.cap_total_amount));
                     const totalAmountData = this.medicalAnalytics.medicals.map(item => item.total_medicalbill_amount);
 
-                    this.plotLineChart('medicalsChart', categories, 'CAP Total Amount', capTotalAmountData, 'Total Medical Bill', totalAmountData, "Medical Bills By Months","Cap Proceeds: ₦"+  (this.encountersAnalytics.capitation - this.medicalAnalytics.medical_bill_amount));
+                    this.plotLineChart('medicalsChart', categories, 'CAP Total Amount', capTotalAmountData, 'Total Medical Bill', totalAmountData, "Medical Bills By Months","Cap Proceeds: ₦"+  (this.encountersAnalytics.capitation * 0.4));
                 } catch (e) {
                     console.log(e,4444)
                 }
