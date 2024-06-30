@@ -480,7 +480,7 @@ class VisitController extends Controller
                 'mode_of_enrolment' => "Formal"
             ];
             $totalEnrolleesAll = $enrolleeFormalCount;
-            foreach($EnrolleeByScheme->first()->toArray() as $key =>$value ){       
+            foreach($EnrolleeByScheme->first()->toArray() as $key =>$value ){   
                 $totalEnrolleesAll += (int) $value;
                 if (in_array($key,$schemes)) {         
                     $EnrolleeBySchemes[] =[
